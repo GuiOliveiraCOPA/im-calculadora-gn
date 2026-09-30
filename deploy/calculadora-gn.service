@@ -1,0 +1,36 @@
+# Serviço systemd da Calculadora GLP x GN.
+#
+# Instalação (ajuste User e os caminhos se o projeto não estiver em /opt/calculadora-gn):
+#   sudo cp deploy/calculadora-gn.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now calculadora-gn
+#   sudo systemctl status calculadora-gn
+#   journalctl -u calculadora-gn -f        # logs
+#
+# Rode ./Iniciar_Calculadora.sh uma vez antes, para criar o .venv.
+
+[Unit]
+Description=Calculadora GLP x GN (Flask/Waitress)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=calculadora
+Group=calculadora
+WorkingDirectory=/opt/calculadora-gn/6_Calculadora_Flask
+Environment=HOST=0.0.0.0
+Environment=PORTA=5000
+Environment=PYTHONIOENCODING=utf-8
+ExecStart=/opt/calculadora-gn/6_Calculadora_Flask/.venv/bin/python app.py
+Restart=on-failure
+RestartSec=5
+
+# Endurecimento básico: o serviço só precisa ler o projeto.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
