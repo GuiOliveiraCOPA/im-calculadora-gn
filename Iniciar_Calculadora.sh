@@ -56,7 +56,7 @@ fi
 
 ENDERECO="$HOST"
 if [ "$HOST" = "0.0.0.0" ]; then
-  ENDERECO="$(hostname -I 2>/dev/null | awk '{print $1}')"
+  ENDERECO="$(hostname -I 2>/dev/null | awk '{print $1}' || true)"
   ENDERECO="${ENDERECO:-127.0.0.1}"
 fi
 echo "Acesse: http://${ENDERECO}:${PORTA}/  (Ctrl+C para encerrar)"

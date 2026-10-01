@@ -43,6 +43,31 @@ Para rodar como serviço permanente, que reinicia sozinho e sobe junto com o ser
 [deploy/calculadora-gn.service](deploy/calculadora-gn.service). As instruções estão no
 cabeçalho do arquivo.
 
+### Em contêiner (Docker ou Podman) — recomendado para o servidor
+
+```bash
+cd /opt/calculadora-gn/6_Calculadora_Flask
+chmod +x Iniciar_Calculadora_Docker.sh
+./Iniciar_Calculadora_Docker.sh              # roda os testes, constrói e sobe na porta 5000
+PORTA=8080 ./Iniciar_Calculadora_Docker.sh   # outra porta
+./Iniciar_Calculadora_Docker.sh --logs       # acompanha os logs
+./Iniciar_Calculadora_Docker.sh --parar      # derruba
+```
+
+O script usa o Docker (`docker compose`) ou o Podman (`podman compose`/`podman-compose`), o que
+estiver instalado. No AlmaLinux: `sudo dnf install -y podman podman-compose`.
+
+- **A imagem leva o código e o mapa** (`4_Mapa_GN`). Por isso o contexto do build é a raiz do
+  projeto (`Dockerfile` + `docker-compose.yml` nesta pasta, `.dockerignore` na raiz).
+- **A base de tarifas vem do servidor:** a pasta `data/` é montada só para leitura. Quando o
+  `AtualizarDados.sh` grava um `tarifas.json` novo, a calculadora carrega sozinha em segundos,
+  **sem reiniciar o contêiner**. Base inválida → página de erro (503), nunca cálculo errado.
+- **Reinicia sozinho** com o servidor (`restart: unless-stopped`) e tem checagem de saúde em `/saude`.
+- Roda como usuário sem privilégio, no horário de Brasília.
+- Os testes rodam na construção (`--target teste`). Se falharem, a imagem nova não sobe.
+
+Com o contêiner, o `deploy/calculadora-gn.service` (systemd) não é necessário.
+
 A atualização das tarifas no Linux é feita pelo
 `1_Processo_Extracao_Dados/Comece_aqui/AtualizarDados.sh`, que já gera o `data/tarifas.json`.
 Veja o `README.md` daquela pasta.

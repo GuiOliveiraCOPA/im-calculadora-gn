@@ -19,7 +19,7 @@ from calculadora.filtros import resolver_filtros
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent
 TARIFAS_PADRAO = BASE_DIR / "data" / "tarifas.json"
-MAPA_DIR = PROJECT_ROOT / "4_Mapa_GN"
+MAPA_DIR = Path(os.environ.get("MAPA_GN_DIR", PROJECT_ROOT / "4_Mapa_GN"))
 
 VOLUME_PADRAO = 5000.0
 TIPOS_ENTRADA = ("glp", "gn")
