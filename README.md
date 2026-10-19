@@ -77,6 +77,8 @@ Com o contêiner, o `deploy/calculadora-gn.service` (systemd) não é necessári
 
 ## ETL da base tarifária
 
+Resumo da migração, testes e pontos de atenção: [migracao_etl.md](migracao_etl.md).
+
 O processo de coleta e tratamento do IM foi migrado **sem alterações** para
 [`processo_im/`](processo_im/LEIA-ME.md) (cópia de `1_Processo_Extracao_Dados`, `2_Bases_Origem`,
 `3_Manutencao` e `4_Mapa_GN`). O pacote `etl/` só orquestra a execução, no mesmo roteiro do
