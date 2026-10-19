@@ -1,8 +1,9 @@
-# Calculadora GLP x GN (Flask + Waitress) em contêiner.
+# Calculadora GLP x GN (Flask + Waitress) + ETL do IM em contêiner.
 #
-# O contexto do build é a RAIZ do projeto, porque a imagem leva também o mapa (4_Mapa_GN):
-#   docker build -f 6_Calculadora_Flask/Dockerfile -t calculadora-gn .
-# Ou, mais simples:  cd 6_Calculadora_Flask && ./Iniciar_Calculadora_Docker.sh
+# O contexto do build é esta pasta (6_Calculadora_Flask): o processo de coleta e tratamento
+# do IM (processo_im/) e o mapa (processo_im/4_Mapa_GN) já estão dentro dela.
+#   docker build -t calculadora-gn .
+# Ou, mais simples:  ./Iniciar_Calculadora_Docker.sh
 #
 # Estágios:  base (dependências) -> teste (roda o pytest) -> final (imagem de execução)
 
@@ -13,35 +14,51 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /app
-COPY 6_Calculadora_Flask/requirements.txt ./
-RUN pip install -r requirements.txt
+COPY requirements.txt ./
+# Bibliotecas do processo do IM (extratores e consolidação), com o requirements.txt original dele.
+COPY processo_im/1_Processo_Extracao_Dados/Comece_aqui/Fonte_Dados/requirements.txt ./requirements-etl.txt
+RUN pip install -r requirements.txt -r requirements-etl.txt
 
 
 # ---------------------------------------------------------------- testes
-# docker build -f 6_Calculadora_Flask/Dockerfile --target teste .
+# docker build --target teste .
 FROM base AS teste
-COPY 6_Calculadora_Flask/requirements-dev.txt ./
+COPY requirements-dev.txt ./
 RUN pip install -r requirements-dev.txt
-COPY 6_Calculadora_Flask/ ./
+COPY . ./
 RUN python -m pytest -q
 
 
 # ---------------------------------------------------------------- execução
 FROM base AS final
+# Navegador headless para os extratores que usam Selenium (Cegás, Copergás, MSGás e MTGás).
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends chromium chromium-driver \
+ && rm -rf /var/lib/apt/lists/*
+
 ENV HOST=0.0.0.0 \
     PORTA=5000 \
     TZ=America/Sao_Paulo \
-    MAPA_GN_DIR=/app/mapa \
-    TARIFAS_GN_JSON=/app/data/tarifas.json
+    LANG=C.UTF-8 \
+    MAPA_GN_DIR=/app/processo_im/4_Mapa_GN \
+    TARIFAS_GN_JSON=/app/data/tarifas.json \
+    ETL_PROCESSO_DIR=/app/processo_im \
+    ETL_ESTADO_DIR=/app/data/etl \
+    ETL_AGENDADOR=1 \
+    GN_CHROME_BINARY=/usr/bin/chromium \
+    HOME=/home/calculadora
 
-RUN useradd --system --uid 10001 --home-dir /app calculadora
-COPY --chown=calculadora 6_Calculadora_Flask/app.py ./
-COPY --chown=calculadora 6_Calculadora_Flask/calculadora/ ./calculadora/
-COPY --chown=calculadora 6_Calculadora_Flask/templates/ ./templates/
-COPY --chown=calculadora 6_Calculadora_Flask/static/ ./static/
-# Base embutida: usada se nenhuma pasta data/ for montada. Em produção, monte data/ do servidor.
-COPY --chown=calculadora 6_Calculadora_Flask/data/ ./data/
-COPY --chown=calculadora 4_Mapa_GN/ ./mapa/
+RUN useradd --system --uid 10001 --create-home --home-dir /home/calculadora calculadora
+COPY --chown=calculadora app.py ./
+COPY --chown=calculadora calculadora/ ./calculadora/
+COPY --chown=calculadora etl/ ./etl/
+COPY --chown=calculadora templates/ ./templates/
+COPY --chown=calculadora static/ ./static/
+# Base embutida: semente do volume de dados na primeira subida. Depois o ETL a mantém atualizada.
+COPY --chown=calculadora data/ ./data/
+# Processo do IM. Os extratores gravam na própria pasta Fonte_Dados, por isso o dono é o usuário do app.
+COPY --chown=calculadora processo_im/ ./processo_im/
+RUN mkdir -p /app/data/etl && chown calculadora /app/data /app/data/etl
 
 USER calculadora
 EXPOSE 5000

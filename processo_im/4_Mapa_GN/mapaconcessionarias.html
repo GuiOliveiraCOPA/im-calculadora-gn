@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prévia — Mapas das Concessionárias</title>
+  <style>
+    *{box-sizing:border-box} body{position:relative;margin:0;padding:14px;background:aliceblue;color:#222;font-family:Arial,Helvetica,sans-serif;font-size:14px}
+    .container{width:min(1240px,calc(100vw - 28px));margin:46px auto 0;background:#fff;padding:20px 24px;border-radius:18px;box-shadow:0 4px 12px #00000017}
+    h1{margin:0;color:#024b2d;font-size:24px;line-height:1.15}.intro{color:#5d6670;line-height:1.35;margin:6px 0 13px;font-size:13px}
+    .back{position:absolute;top:10px;right:clamp(16px,3vw,40px);display:inline-flex;width:auto;min-height:32px;align-items:center;justify-content:center;margin:0;padding:0 12px;border:1px solid #d9e4dd;border-radius:999px;background:#fff;color:#024b2d;font:700 12px Arial,Helvetica,sans-serif;cursor:pointer;box-shadow:0 4px 14px #0000001f}
+    .back:hover,.back:focus{background:#f7faf8;box-shadow:0 6px 16px #00000024;outline:2px solid #f5822045}
+    .grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+    .card{border:1px solid #d9e4dd;border-radius:8px;padding:11px;background:#fff;display:flex;flex-direction:column;min-height:96px}
+    .card h2{font-size:15px;color:#024b2d;margin:0 0 9px;line-height:1.15}.card h2::after{font-size:11px;font-weight:600;color:#4a5560}.state,.status,.badge{display:none}
+    .card:nth-child(1) h2::after{content:' (AL)'}.card:nth-child(2) h2::after{content:' (BA)'}.card:nth-child(3) h2::after{content:' (CE)'}.card:nth-child(4) h2::after{content:' (AM)'}
+    .card:nth-child(5) h2::after{content:' (SP)'}.card:nth-child(6) h2::after{content:' (PR)'}.card:nth-child(7) h2::after{content:' (PE)'}.card:nth-child(8) h2::after{content:' (ES)'}
+    .card:nth-child(9) h2::after{content:' (MG)'}.card:nth-child(10) h2::after{content:' (MS)'}.card:nth-child(11) h2::after{content:' (MT)'}.card:nth-child(12) h2::after{content:' (SP)'}
+    .card:nth-child(13) h2::after{content:' (RJ)'}.card:nth-child(14) h2::after{content:' (RJ)'}.card:nth-child(15) h2::after{content:' (SP)'}.card:nth-child(16) h2::after{content:' (PB)'}
+    .card:nth-child(17) h2::after{content:' (RN)'}.card:nth-child(18) h2::after{content:' (SC)'}.card:nth-child(19) h2::after{content:' (SE)'}.card:nth-child(20) h2::after{content:' (RS)'}
+    a{display:flex;min-height:34px;align-items:center;justify-content:center;text-align:center;background:#024b2d;color:#fff;text-decoration:none;font-size:12px;font-weight:700;padding:6px 7px;border-radius:7px;margin-top:auto}
+    a:hover,a:focus{background:#036b40;outline:3px solid #f5822045}
+    footer{margin-top:10px;color:#667085;font-size:11px}
+    @media(min-width:1600px){
+      .container{width:92vw;max-width:1720px;padding:20px 24px;margin-top:46px}
+      h1{font-size:24px}
+      .intro{font-size:13px;margin-bottom:13px}
+      .grid{gap:12px}
+      .card{min-height:96px;padding:11px}
+      .card h2{font-size:15px;margin-bottom:9px}
+      .card h2::after{font-size:11px}
+      a{min-height:34px;font-size:12px;padding:6px 7px}
+      footer{margin-top:10px;font-size:11px}
+    }
+    @media(min-width:981px) and (max-height:900px){.back{top:10px;right:16px;min-height:32px;padding:0 12px}}
+    @media(min-width:701px) and (max-height:720px){
+      body{padding:8px}
+      .back{top:8px;min-height:28px;padding:0 10px;font-size:11px}
+      .container{margin-top:40px;padding:14px 18px}
+      .intro{margin:4px 0 9px}
+      .grid{gap:8px}
+      .card{min-height:82px;padding:8px 10px}
+      .card h2{margin-bottom:6px;font-size:14px}
+      a{min-height:30px;padding:4px 6px;font-size:11px}
+      footer{margin-top:7px}
+    }
+    @media(max-width:1120px){.grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+    @media(max-width:850px){.grid{grid-template-columns:repeat(4,minmax(145px,1fr))}}
+    @media(max-width:700px){body{padding:10px}.container{width:100%;padding:16px;border-radius:14px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:22px}}
+  </style>
+</head>
+<body>
+<button class="back" type="button" onclick="location.href='index.html'">Voltar para o mapa municipal</button>
+<main class="container">
+  <h1>Mapas das concessionárias</h1>
+  <p class="intro">Consulte a disponibilidade da rede diretamente nos canais oficiais. Os links abrem em uma nova aba.</p>
+  <section class="grid">
+    <article class="card"><h2>Algás <span class="badge">Mapa localizado</span></h2><div class="state">Alagoas</div><p class="status">Página oficial “Regiões Atendidas”.</p><a href="https://www.algas.com.br/regioes-atendidas/" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>Bahiagás <span class="badge">Mapa localizado</span></h2><div class="state">Bahia</div><p class="status">Página oficial “Rede de Distribuição”.</p><a href="https://www.bahiagas.com.br/bahiagas/rede-de-distribuicao" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>Cegás <span class="badge">Mapa localizado</span></h2><div class="state">Ceará</div><p class="status">Cadastro oficial da rede.</p><a href="https://www.cegas.com.br/cadastro-da-rede/" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>Cigás <span class="badge">Mapa localizado</span></h2><div class="state">Amazonas</div><p class="status">Mapa oficial de obras e expansão.</p><a href="https://obras.cigas-am.com.br/" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>Comgás <span class="badge">Mapa localizado</span></h2><div class="state">São Paulo</div><p class="status">Mapa oficial “Nossa Rede”.</p><a href="https://nossarede.comgas.com.br/nossarede/index.html#/map/-22.683987,-46.778507,8z#" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>Compagas <span class="badge no-map">Página da infraestrutura</span></h2><div class="state">Paraná</div><p class="status">Não foi localizado um mapa público atual de ruas.</p><a href="https://www.compagas.com.br/infraestrutura.html" target="_blank" rel="noopener noreferrer">Abrir fonte oficial ↗</a></article>
+    <article class="card"><h2>Copergás <span class="badge no-map">Página institucional</span></h2><div class="state">Pernambuco</div><p class="status">Mapa público atual não confirmado.</p><a href="https://www.copergas.com.br/" target="_blank" rel="noopener noreferrer">Abrir concessionária ↗</a></article>
+    <article class="card"><h2>ES Gás <span class="badge">Mapa localizado</span></h2><div class="state">Espírito Santo</div><p class="status">Página oficial da rede, com acesso ao Geobases.</p><a href="https://esgas.com.br/rede-de-distribuicao" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>Gasmig <span class="badge">Mapa localizado</span></h2><div class="state">Minas Gerais</div><p class="status">Mapa de rede com pesquisa por endereço.</p><a href="https://gasmig.com.br/querogasmig/" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>MSGás <span class="badge">Mapa localizado</span></h2><div class="state">Mato Grosso do Sul</div><p class="status">Mapa interativo “Nossa Rede”.</p><a href="https://nossarede.msgas.com.br/showmapa" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>MT Gás <span class="badge no-map">Página da infraestrutura</span></h2><div class="state">Mato Grosso</div><p class="status">Mapa público detalhado não localizado.</p><a href="https://mtgas.com.br/infraestrutura/" target="_blank" rel="noopener noreferrer">Abrir fonte oficial ↗</a></article>
+    <article class="card"><h2>Naturgy <span class="badge">Áreas atendidas</span></h2><div class="state">São Paulo</div><p class="status">Consulta oficial da área de concessão.</p><a href="https://www.naturgy.com.br/o_gas_natural/areas_abastecidas/" target="_blank" rel="noopener noreferrer">Abrir consulta oficial ↗</a></article>
+    <article class="card"><h2>Naturgy (CEG) <span class="badge">Áreas atendidas</span></h2><div class="state">Rio de Janeiro</div><p class="status">Consulta oficial de municípios e áreas abastecidas.</p><a href="https://www.naturgy.com.br/o_gas_natural/areas_abastecidas/" target="_blank" rel="noopener noreferrer">Abrir consulta oficial ↗</a></article>
+    <article class="card"><h2>Naturgy (CEG-RIO) <span class="badge">Áreas atendidas</span></h2><div class="state">Rio de Janeiro</div><p class="status">Consulta oficial de municípios e áreas abastecidas.</p><a href="https://www.naturgy.com.br/o_gas_natural/areas_abastecidas/" target="_blank" rel="noopener noreferrer">Abrir consulta oficial ↗</a></article>
+    <article class="card"><h2>Necta <span class="badge no-map">Página institucional</span></h2><div class="state">São Paulo</div><p class="status">Mapa público detalhado não localizado.</p><a href="https://www.necta.com.br/" target="_blank" rel="noopener noreferrer">Abrir concessionária ↗</a></article>
+    <article class="card"><h2>PBGás <span class="badge">Mapa localizado</span></h2><div class="state">Paraíba</div><p class="status">Página oficial “Mapa da Rede PBGÁS”.</p><a href="https://pbgas.com.br/antes-de-escavar-ligue-para-a-pbgas/" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>Potigás <span class="badge">Mapa localizado</span></h2><div class="state">Rio Grande do Norte</div><p class="status">Mapa oficial da rede na página Distribuição.</p><a href="https://potigas.com.br/p/distribuicao" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>SCGás <span class="badge">Mapa localizado</span></h2><div class="state">Santa Catarina</div><p class="status">Mapa orientativo oficial da rede.</p><a href="https://www.scgas.com.br/scgas/site/a-scgas/mapa-da-rede" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>Sergás <span class="badge">Mapa localizado</span></h2><div class="state">Sergipe</div><p class="status">Mapa oficial de atuação e gasodutos.</p><a href="https://www.sergipegas.com.br/plantao" target="_blank" rel="noopener noreferrer">Abrir mapa oficial ↗</a></article>
+    <article class="card"><h2>Sulgás <span class="badge no-map">Página institucional</span></h2><div class="state">Rio Grande do Sul</div><p class="status">Mapa público atual não confirmado.</p><a href="https://www.sulgas.rs.gov.br/" target="_blank" rel="noopener noreferrer">Abrir concessionária ↗</a></article>
+  </section>
+  <footer>Os mapas pertencem às respectivas concessionárias. Consulte a empresa antes de executar obras ou escavações.</footer>
+</main>
+</body>
+</html>

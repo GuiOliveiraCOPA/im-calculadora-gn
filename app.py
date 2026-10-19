@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import math
 import os
+import secrets
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, redirect, render_template, request, send_from_directory, url_for
@@ -15,11 +16,12 @@ from calculadora import formatacao
 from calculadora.calculo import ResultadoCalculo, calcular
 from calculadora.dados import RepositorioTarifas, TarifasInvalidas
 from calculadora.filtros import resolver_filtros
+from etl import Agendador, ConfiguracaoEtl, ExecutorEtl
+from etl.rotas import bp as etl_bp
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent
 TARIFAS_PADRAO = BASE_DIR / "data" / "tarifas.json"
-MAPA_DIR = Path(os.environ.get("MAPA_GN_DIR", PROJECT_ROOT / "4_Mapa_GN"))
+MAPA_DIR = Path(os.environ.get("MAPA_GN_DIR", BASE_DIR / "processo_im" / "4_Mapa_GN"))
 
 VOLUME_PADRAO = 5000.0
 TIPOS_ENTRADA = ("glp", "gn")
@@ -86,12 +88,24 @@ def resultado_como_dict(resultado) -> dict:
     }
 
 
-def create_app(caminho_tarifas: Path | None = None) -> Flask:
+def create_app(caminho_tarifas: Path | None = None, config_etl: ConfiguracaoEtl | None = None) -> Flask:
     app = Flask(__name__)
     app.json.ensure_ascii = False
     app.json.sort_keys = False
+    app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
     repositorio = RepositorioTarifas(caminho_tarifas or Path(os.environ.get("TARIFAS_GN_JSON", TARIFAS_PADRAO)))
     app.extensions["tarifas"] = repositorio
+
+    # ETL do IM: tela oculta em /interno/etl e agendamento diário (ligado com ETL_AGENDADOR=1, como no Docker).
+    executor_etl = ExecutorEtl(config_etl or ConfiguracaoEtl.do_ambiente(repositorio.caminho))
+    app.extensions["etl_executor"] = executor_etl
+    app.register_blueprint(etl_bp)
+    # Com FLASK_DEBUG=1 o recarregador roda dois processos; o agendador fica só no filho.
+    processo_principal = os.environ.get("FLASK_DEBUG") != "1" or os.environ.get("WERKZEUG_RUN_MAIN") == "true"
+    if os.environ.get("ETL_AGENDADOR") == "1" and processo_principal:
+        agendador = Agendador(executor_etl, executor_etl.config.agendamento_json)
+        agendador.start()
+        app.extensions["etl_agendador"] = agendador
 
     app.add_template_filter(formatacao.moeda, "moeda")
     app.add_template_filter(formatacao.numero, "numero")

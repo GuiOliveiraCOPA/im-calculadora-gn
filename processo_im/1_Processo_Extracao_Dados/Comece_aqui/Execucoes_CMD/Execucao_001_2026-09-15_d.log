@@ -1,0 +1,93 @@
+Execucao: Execucao_001_2026-09-15_d.log
+Responsavel: d
+Usuario Windows: DISTRI\7ZZ7
+Computador: NCESD2-12290
+Inicio: 2026-09-15 15:10:48
+Pasta: C:\Users\7zz7\OneDrive - Copa Energia\IM - Documentos\General\GN\Calculadora_VersãoOriginal\1_Processo_Extracao_Dados\Comece_aqui
+
+===== PREPARACAO DO AMBIENTE =====
+AmbientePython nao encontrado. Tentando usar Python instalado na maquina. 
+Dependencias carregadas com sucesso. 
+
+===== SAIDA DO CODIGO =====
+Extratores selecionados: SP, RJ, ES, MG, PR, SC, RS, MS, MT, AM, AL, BA, CE, PB, PE, RN, SE
+Pasta das planilhas individuais: C:\Users\7zz7\OneDrive - Copa Energia\IM - Documentos\General\GN\Calculadora_VersãoOriginal\1_Processo_Extracao_Dados\Comece_aqui\Fonte_Dados\PlanilhasUf
+
+Rodando SP...
+Status: erro ao executar
+
+Rodando RJ...
+Status: erro ao executar
+
+Rodando ES...
+Status: ok
+
+Rodando MG...
+Status: ok
+
+Rodando PR...
+Status: ok
+
+Rodando SC...
+Status: ok
+
+Rodando RS...
+Status: ok
+
+Rodando MS...
+Status: ok
+
+Rodando MT...
+Status: ok
+
+Rodando AM...
+Status: ok
+
+Rodando AL...
+Status: ok
+
+Rodando BA...
+Status: ok
+
+Rodando CE...
+Status: ok
+
+Rodando PB...
+Status: ok
+
+Rodando PE...
+Status: ok
+
+Rodando RN...
+Status: ok
+
+Rodando SE...
+Status: ok
+
+Concluido.
+Arquivo central gerado em: C:\Users\7zz7\OneDrive - Copa Energia\IM - Documentos\General\GN\Calculadora_VersãoOriginal\1_Processo_Extracao_Dados\Comece_aqui\Planilha_Final\Planilha_GN_Atualizada.xlsx
+
+ATENCAO: a planilha foi gerada, mas houve erro em parte do processo.
+- SP: erro ao executar -                       ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\7zz7\OneDrive - Copa Energia\IM - Documentos\General\GN\Calculadora_VersãoOriginal\1_Processo_Extracao_Dados\Comece_aqui\Fonte_Dados\tabela_sp.py", line 132, in select_naturgy_sp_urls
+    soup = BeautifulSoup(http_get(NATURGY_SP_PAGE, timeout=60).text, "html.parser")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\7zz7\OneDrive - Copa Energia\IM - Documentos\General\GN\Calculadora_VersãoOriginal\1_Processo_Extracao_Dados\Comece_aqui\Fonte_Dados\tabela_sp.py", line 40, in http_get
+    response.raise_for_status()
+  File "C:\Users\7zz7\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\requests\models.py", line 1028, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 504 Server Error: Gateway Time-out for url: https://www.naturgy.com.br/atendimento/tarifas/tarifa_sao_paulo
+- RJ: erro ao executar - urls()
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\7zz7\OneDrive - Copa Energia\IM - Documentos\General\GN\Calculadora_VersãoOriginal\1_Processo_Extracao_Dados\Comece_aqui\Fonte_Dados\tabela_rj.py", line 178, in select_rio_pdf_urls
+    soup = BeautifulSoup(http_get(NATURGY_RJ_PAGE, timeout=60).text, "html.parser")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\7zz7\OneDrive - Copa Energia\IM - Documentos\General\GN\Calculadora_VersãoOriginal\1_Processo_Extracao_Dados\Comece_aqui\Fonte_Dados\tabela_rj.py", line 40, in http_get
+    response.raise_for_status()
+  File "C:\Users\7zz7\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\requests\models.py", line 1028, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 504 Server Error: Gateway Time-out for url: https://www.naturgy.com.br/atendimento/tarifas/tarifa_rio_de_janeiro/
+
+===== FIM DA EXECUCAO =====
+Termino: 2026-09-15 15:13:28
+Status: 1

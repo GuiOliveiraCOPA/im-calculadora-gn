@@ -1,0 +1,30 @@
+LEIA-ME - MAPA DE GAS NATURAL
+
+PARA ABRIR O MAPA:
+- Abra somente o arquivo index.html.
+- A calculadora tambem abre esse mesmo arquivo automaticamente.
+
+O QUE EXISTE NESTA PASTA:
+- index.html: abre o mapa municipal do Brasil.
+- Mapa Rede Comgas.html: abre o mapa de ruas e da Rede Comgas em Sao Paulo.
+- Arquivos do Mapa Brasil: funcionamento, aparencia e dados do mapa nacional.
+- Arquivos do Mapa SP: funcionamento, aparencia e biblioteca do mapa de Sao Paulo.
+
+DENTRO DE ARQUIVOS DO MAPA BRASIL:
+- Dados: municipios, geometrias e arquivos usados para desenhar o Brasil.
+- Estilos do Mapa Brasil.css: cores e aparencia.
+- Funcionamento do Mapa Brasil.js: filtros, tabela, zoom e botao Rede Comgas.
+
+DENTRO DE ARQUIVOS DO MAPA SP:
+- Estilos do Mapa SP.css: aparencia da pagina de Sao Paulo.
+- Funcionamento do Mapa SP.js: ruas, zoom e Rede Comgas.
+- Biblioteca do Mapa: biblioteca Leaflet usada para exibir o mapa.
+- Imagens: imagens internas da biblioteca.
+
+IMPORTANTE:
+- Mova sempre a pasta inteira. Nao mova somente o index.html.
+- Nao renomeie arquivos ou pastas sem atualizar os caminhos no index.html.
+- O mapa de Sao Paulo precisa de internet para carregar as ruas e a rede oficial.
+- Nenhum calculo, tarifa ou dado da calculadora deve ser alterado nesta pasta.
+
+Organizacao realizada em 07/08/2026 pelo Codex.

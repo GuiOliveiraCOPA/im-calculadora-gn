@@ -1,0 +1,98 @@
+Execucao: Execucao_002_2026-10-19_Claude-teste-completo.log
+Responsavel: Claude-teste-completo
+Usuario Windows: DISTRI\QAIP
+Computador: NCESD2-00310
+Inicio: 2026-10-19 15:28:50
+Pasta: D:\DEV\IA%20-%20Calculadora%20GN\1_Processo_Extracao_Dados\Comece_aqui
+
+===== PREPARACAO DO AMBIENTE =====
+AmbientePython nao encontrado. Tentando usar Python instalado na maquina. 
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+Dependencias carregadas com sucesso. 
+
+===== SAIDA DO CODIGO =====
+Extratores selecionados: SP, RJ, ES, MG, PR, SC, RS, MS, MT, AM, AL, BA, CE, PB, PE, RN, SE
+Pasta das planilhas individuais: D:\DEV\IA%20-%20Calculadora%20GN\1_Processo_Extracao_Dados\Comece_aqui\Fonte_Dados\PlanilhasUf
+
+Rodando SP...
+Status: ok
+
+Rodando RJ...
+Status: ok
+
+Rodando ES...
+Status: ok
+
+Rodando MG...
+Status: erro ao executar
+
+Rodando PR...
+Status: ok
+
+Rodando SC...
+Status: ok
+
+Rodando RS...
+Status: ok
+
+Rodando MS...
+Status: ok
+
+Rodando MT...
+Status: ok
+
+Rodando AM...
+Status: ok
+
+Rodando AL...
+Status: ok
+
+Rodando BA...
+Status: erro ao executar
+
+Rodando CE...
+Status: ok
+
+Rodando PB...
+Status: ok
+
+Rodando PE...
+Status: ok
+
+Rodando RN...
+Status: ok
+
+Rodando SE...
+Status: ok
+
+Concluido.
+Arquivo central gerado em: D:\DEV\IA%20-%20Calculadora%20GN\1_Processo_Extracao_Dados\Comece_aqui\Planilha_Final\Planilha_GN_Atualizada.xlsx
+
+ATENCAO: a planilha foi gerada, mas houve erro em parte do processo.
+- MG: erro ao executar - in get
+    return self.request("GET", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\qaip\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 651, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\qaip\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 784, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\qaip\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\adapters.py", line 717, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='gasmig.com.br', port=443): Max retries exceeded with url: /residencial/ (Caused by ConnectTimeoutError(<HTTPSConnection(host='gasmig.com.br', port=443) at 0x2375d4a1fd0>, 'Connection to gasmig.com.br timed out. (connect timeout=60)'))
+- BA: erro ao executar - od, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\qaip\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 651, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\qaip\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 784, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\qaip\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\adapters.py", line 717, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='www.bahiagas.com.br', port=443): Max retries exceeded with url: /tabelatarifaria/tabelacompleta_json.txt (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.bahiagas.com.br', port=443) at 0x13335d388d0>, 'Connection to www.bahiagas.com.br timed out. (connect timeout=60)'))
+
+===== FIM DA EXECUCAO =====
+Termino: 2026-10-19 15:33:08
+Status: 1

@@ -17,6 +17,8 @@ if not exist ".venv\Scripts\python.exe" (
   call %%PYTHON_CMD%% -m venv .venv || goto :erro
 )
 ".venv\Scripts\python.exe" -m pip install -q -r requirements.txt || goto :erro
+rem Bibliotecas do processo de coleta do IM (usadas pela tela /interno/etl).
+".venv\Scripts\python.exe" -m pip install -q -r "processo_im\1_Processo_Extracao_Dados\Comece_aqui\Fonte_Dados\requirements.txt" || goto :erro
 
 start "" cmd /c "timeout /t 2 /nobreak >nul & start http://127.0.0.1:%PORTA%/"
 ".venv\Scripts\python.exe" app.py
