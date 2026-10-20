@@ -1,6 +1,5 @@
-.venv/
+.venv/*
 __pycache__/
 .pytest_cache/
-data/*.tmp
-tests/paridade/_tarifas_original.json
-data/etl/
+*.xlsx
+*.log

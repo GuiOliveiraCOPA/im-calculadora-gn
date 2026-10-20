@@ -1,0 +1,180 @@
+[
+  {
+    "log": "Execucao_001_2026-10-20_Flavio.log",
+    "origem": "manual",
+    "responsavel": "Flavio",
+    "inicio": "2026-10-20 00:16:01",
+    "fim": "2026-10-20 00:18:50",
+    "status": "sucesso",
+    "etapa": "fim",
+    "codigo_saida": 0,
+    "base_publicada": true,
+    "registros": 459,
+    "generated_at": "2026-10-20 00:18:50",
+    "mensagem": "Base da calculadora atualizada com sucesso.",
+    "opcoes": {
+      "ufs": "",
+      "skip_run": false,
+      "mesmo_com_erro": false
+    },
+    "ufs": [
+      {
+        "uf": "SP",
+        "status": "ok"
+      },
+      {
+        "uf": "RJ",
+        "status": "ok"
+      },
+      {
+        "uf": "ES",
+        "status": "ok"
+      },
+      {
+        "uf": "MG",
+        "status": "ok"
+      },
+      {
+        "uf": "PR",
+        "status": "ok"
+      },
+      {
+        "uf": "SC",
+        "status": "ok"
+      },
+      {
+        "uf": "RS",
+        "status": "ok"
+      },
+      {
+        "uf": "MS",
+        "status": "ok"
+      },
+      {
+        "uf": "MT",
+        "status": "ok"
+      },
+      {
+        "uf": "AM",
+        "status": "ok"
+      },
+      {
+        "uf": "AL",
+        "status": "ok"
+      },
+      {
+        "uf": "BA",
+        "status": "ok"
+      },
+      {
+        "uf": "CE",
+        "status": "ok"
+      },
+      {
+        "uf": "PB",
+        "status": "ok"
+      },
+      {
+        "uf": "PE",
+        "status": "ok"
+      },
+      {
+        "uf": "RN",
+        "status": "ok"
+      },
+      {
+        "uf": "SE",
+        "status": "ok"
+      }
+    ]
+  },
+  {
+    "log": "Execucao_004_2026-10-19_Agendamento.log",
+    "origem": "agendamento",
+    "responsavel": "Agendamento",
+    "inicio": "2026-10-19 22:18:02",
+    "fim": "2026-10-19 22:20:50",
+    "status": "sucesso",
+    "etapa": "fim",
+    "codigo_saida": 0,
+    "base_publicada": true,
+    "registros": 459,
+    "generated_at": "2026-10-19 22:20:50",
+    "mensagem": "Base da calculadora atualizada com sucesso.",
+    "opcoes": {
+      "ufs": "",
+      "skip_run": false,
+      "mesmo_com_erro": true
+    },
+    "ufs": [
+      {
+        "uf": "SP",
+        "status": "ok"
+      },
+      {
+        "uf": "RJ",
+        "status": "ok"
+      },
+      {
+        "uf": "ES",
+        "status": "ok"
+      },
+      {
+        "uf": "MG",
+        "status": "ok"
+      },
+      {
+        "uf": "PR",
+        "status": "ok"
+      },
+      {
+        "uf": "SC",
+        "status": "ok"
+      },
+      {
+        "uf": "RS",
+        "status": "ok"
+      },
+      {
+        "uf": "MS",
+        "status": "ok"
+      },
+      {
+        "uf": "MT",
+        "status": "ok"
+      },
+      {
+        "uf": "AM",
+        "status": "ok"
+      },
+      {
+        "uf": "AL",
+        "status": "ok"
+      },
+      {
+        "uf": "BA",
+        "status": "ok"
+      },
+      {
+        "uf": "CE",
+        "status": "ok"
+      },
+      {
+        "uf": "PB",
+        "status": "ok"
+      },
+      {
+        "uf": "PE",
+        "status": "ok"
+      },
+      {
+        "uf": "RN",
+        "status": "ok"
+      },
+      {
+        "uf": "SE",
+        "status": "ok"
+      }
+    ]
+  }
+]

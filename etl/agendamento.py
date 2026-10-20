@@ -103,10 +103,11 @@ class Agendador(threading.Thread):
         agora = agora or datetime.now()
         assinatura = self._assinatura_arquivo()
         if assinatura != self._assinatura:
-            # Agendamento alterado: conta a partir de agora (não dispara um horário que já passou hoje).
+            # Agendamento alterado: conta a partir do momento em que foi salvo (não dispara um horário que
+            # já tinha passado), e não de quando a mudança foi notada, que pode ser até 30 s depois.
             self._assinatura = assinatura
-            self._referencia = agora
-            return False
+            salvo_em = datetime.fromtimestamp(assinatura[0] / 1e9) if assinatura else agora
+            self._referencia = min(salvo_em, agora)
 
         agendamento = carregar_agendamento(self.caminho)
         prevista = proxima_execucao(agendamento, self._referencia)

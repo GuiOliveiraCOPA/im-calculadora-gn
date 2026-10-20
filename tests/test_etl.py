@@ -204,6 +204,27 @@ def test_alterar_agendamento_nao_dispara_horario_que_ja_passou(config):
     assert len(disparos) == 1
 
 
+def test_agendamento_salvo_pouco_antes_do_horario_dispara(config):
+    """Salvo às 22:07:35 para 22:08; a verificação seguinte (a cada 30 s) só acontece às 22:08:03."""
+    import os
+
+    disparos = []
+
+    class ExecutorFalso:
+        def iniciar(self, **kwargs):
+            disparos.append(kwargs)
+
+    agendador = Agendador(ExecutorFalso(), config.agendamento_json)
+    agendador._referencia = datetime(2026, 10, 19, 22, 7, 3)
+    salvar_agendamento(config.agendamento_json, {"ativo": True, "horario": "22:08", "dias": list(range(7))})
+    salvo_em = datetime(2026, 10, 19, 22, 7, 35).timestamp()
+    os.utime(config.agendamento_json, (salvo_em, salvo_em))
+
+    assert agendador.verificar(datetime(2026, 10, 19, 22, 8, 3))
+    assert not agendador.verificar(datetime(2026, 10, 19, 22, 8, 33))
+    assert len(disparos) == 1
+
+
 # ------------------------------------------------------------------ tela
 
 @pytest.fixture
