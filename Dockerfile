@@ -58,7 +58,18 @@ COPY --chown=calculadora static/ ./static/
 COPY --chown=calculadora data/ ./data/
 # Processo do IM. Os extratores gravam na própria pasta Fonte_Dados, por isso o dono é o usuário do app.
 COPY --chown=calculadora processo_im/ ./processo_im/
-RUN mkdir -p /app/data/etl && chown calculadora /app/data /app/data/etl
+# Pontos de montagem dos volumes do docker-compose. Execucoes_CMD e PlanilhasUf não vêm no git
+# (só têm arquivos gerados); sem criá-los aqui, o Docker os cria como root e o ETL não grava.
+RUN mkdir -p /app/data/etl \
+             /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Execucoes_CMD \
+             /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Fonte_Dados/PlanilhasUf \
+             /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/PassadoTarifas \
+             /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Planilha_Final \
+ && chown calculadora /app/data /app/data/etl \
+             /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Execucoes_CMD \
+             /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Fonte_Dados/PlanilhasUf \
+             /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/PassadoTarifas \
+             /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Planilha_Final
 
 USER calculadora
 EXPOSE 5000
