@@ -3,3 +3,5 @@ __pycache__/
 .pytest_cache/
 *.xlsx
 *.log
+# Senhas do docker compose (ETL_SENHA, SECRET_KEY): nunca versionar.
+.env

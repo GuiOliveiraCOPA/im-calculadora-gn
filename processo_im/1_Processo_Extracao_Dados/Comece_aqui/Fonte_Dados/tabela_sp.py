@@ -111,7 +111,7 @@ def split_volume_range(volume_text: str) -> Tuple[Decimal, Decimal]:
 
 
 def select_comgas_pdf_url() -> str:
-    soup = BeautifulSoup(http_get(COMGAS_PAGE, timeout=60).text, "html.parser")
+    soup = BeautifulSoup(http_get(COMGAS_PAGE, timeout=120).text, "html.parser")
     candidates: List[Tuple[int, str]] = []
     for anchor in soup.find_all("a", href=True):
         text = normalize_spaces(anchor.get_text(" ", strip=True))
@@ -129,7 +129,7 @@ def select_comgas_pdf_url() -> str:
 
 
 def select_naturgy_sp_urls() -> Dict[str, str]:
-    soup = BeautifulSoup(http_get(NATURGY_SP_PAGE, timeout=60).text, "html.parser")
+    soup = BeautifulSoup(http_get(NATURGY_SP_PAGE, timeout=120).text, "html.parser")
     urls: Dict[str, str] = {}
     best_full = (-1, "")
     best_compact = (-1, "")
@@ -155,7 +155,7 @@ def is_arsesp_pdf_for_utility(pdf_bytes: bytes, utility_keyword: str) -> bool:
 
 
 def select_arsesp_necta_pdf_url() -> str:
-    soup = BeautifulSoup(http_get(ARSESP_PAGE, timeout=60).text, "html.parser")
+    soup = BeautifulSoup(http_get(ARSESP_PAGE, timeout=120).text, "html.parser")
     candidates: List[Tuple[int, str]] = []
     for anchor in soup.find_all("a", href=True):
         text = normalize_spaces(anchor.get_text(" ", strip=True))
@@ -175,7 +175,7 @@ def select_arsesp_necta_pdf_url() -> str:
 
 
 def select_rio_pdf_urls() -> Dict[str, str]:
-    soup = BeautifulSoup(http_get(NATURGY_RJ_PAGE, timeout=60).text, "html.parser")
+    soup = BeautifulSoup(http_get(NATURGY_RJ_PAGE, timeout=120).text, "html.parser")
     urls: Dict[str, str] = {}
     for anchor in soup.find_all("a", href=True):
         text = normalize_spaces(anchor.get_text(" ", strip=True))

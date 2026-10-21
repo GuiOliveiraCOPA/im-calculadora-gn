@@ -308,7 +308,9 @@ class ExecutorEtl:
     @staticmethod
     def _acompanhar_uf(execucao: dict, linha: str) -> None:
         # O codigo_central.py imprime "Rodando SP..." seguido de "Status: ok" para cada extrator.
+        # Numa nova tentativa a UF aparece de novo: vale o resultado da última.
         if m := RE_RODANDO.match(linha):
+            execucao["ufs"] = [item for item in execucao["ufs"] if item["uf"] != m.group(1)]
             execucao["ufs"].append({"uf": m.group(1), "status": "rodando"})
         elif (m := RE_STATUS_UF.match(linha)) and execucao["ufs"] and execucao["ufs"][-1]["status"] == "rodando":
             execucao["ufs"][-1]["status"] = m.group(1).strip()

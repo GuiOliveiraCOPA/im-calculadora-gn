@@ -108,6 +108,16 @@ def test_falha_na_extracao_mantem_a_base_anterior(config, monkeypatch):
     assert "NAO foi atualizada" in (config.log_dir / execucao["log"]).read_text(encoding="utf-8")
 
 
+def test_nova_tentativa_substitui_o_status_da_uf():
+    execucao = {"ufs": []}
+    saida = ["Rodando SP...", "Status: erro ao executar", "Rodando RJ...", "Status: ok",
+             "Nova tentativa (2 de 3) para: SP", "Rodando SP...", "Status: ok"]
+    for linha in saida:
+        ExecutorEtl._acompanhar_uf(execucao, linha)
+
+    assert execucao["ufs"] == [{"uf": "RJ", "status": "ok"}, {"uf": "SP", "status": "ok"}]
+
+
 def test_mesmo_com_erro_publica_como_parcial(config, monkeypatch):
     monkeypatch.setenv("FALSO_FALHA", "1")
     execucao = ExecutorEtl(config).executar(origem="manual", responsavel="x", mesmo_com_erro=True)

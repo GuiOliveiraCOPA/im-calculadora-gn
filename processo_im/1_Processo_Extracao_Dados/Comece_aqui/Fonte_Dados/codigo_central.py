@@ -93,6 +93,12 @@ def parse_args() -> argparse.Namespace:
         help="Tempo maximo, em segundos, para cada extrator.",
     )
     parser.add_argument(
+        "--tentativas",
+        type=int,
+        default=3,
+        help="Total de tentativas por extrator. Os que derem erro rodam de novo no final. Padrao: 3.",
+    )
+    parser.add_argument(
         "--output",
         default=str(DEFAULT_OUTPUT),
         help="Caminho do Excel central gerado.",
@@ -303,16 +309,24 @@ def run_extractor(extractor: Extractor, timeout: int, skip_run: bool) -> dict:
     if not skip_run:
         env = os.environ.copy()
         env["PYTHONIOENCODING"] = "utf-8"
-        completed = subprocess.run(
-            [sys.executable, str(script_path)],
-            cwd=BASE_DIR,
-            env=env,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            capture_output=True,
-            timeout=timeout,
-        )
+        try:
+            completed = subprocess.run(
+                [sys.executable, str(script_path)],
+                cwd=BASE_DIR,
+                env=env,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                capture_output=True,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired:
+            result["status"] = "erro ao executar"
+            result["mensagem"] = f"O extrator passou de {timeout} segundos e foi interrompido."
+            fallback = latest_file(extractor.output_glob)
+            if fallback:
+                result["arquivo"] = str(fallback)
+            return result
         if completed.returncode != 0:
             result["status"] = "erro ao executar"
             stdout = (completed.stdout or "").strip()
@@ -1354,11 +1368,36 @@ def main() -> None:
     copy_rows: List[dict] = []
     history_rows: List[dict] = []
 
+    run_infos: List[dict] = []
     for extractor in chosen:
         print(f"\nRodando {extractor.name}...")
         run_info = run_extractor(extractor, timeout=args.timeout, skip_run=args.skip_run)
-        run_rows.append(run_info)
+        run_infos.append(run_info)
         print(f"Status: {run_info['status']}")
+
+    # Quem deu erro (site fora do ar, lentidao) roda de novo no final, ate completar as tentativas.
+    total_attempts = max(1, args.tentativas)
+    for attempt in range(2, total_attempts + 1):
+        if args.skip_run:
+            break
+        failed = [index for index, info in enumerate(run_infos) if info["status"] == "erro ao executar"]
+        if not failed:
+            break
+        names = ", ".join(chosen[index].name for index in failed)
+        print(f"\nNova tentativa ({attempt} de {total_attempts}) para: {names}")
+        for index in failed:
+            extractor = chosen[index]
+            print(f"\nRodando {extractor.name}...")
+            run_info = run_extractor(extractor, timeout=args.timeout, skip_run=False)
+            if run_info["status"] == "erro ao executar":
+                run_info["mensagem"] = f"Falhou nas {attempt} tentativas. {run_info['mensagem']}"
+            else:
+                run_info["mensagem"] = f"Ok na tentativa {attempt}. {run_info['mensagem']}".strip()
+            run_infos[index] = run_info
+            print(f"Status: {run_info['status']}")
+
+    for extractor, run_info in zip(chosen, run_infos):
+        run_rows.append(run_info)
 
         source_file = run_info.get("arquivo")
         if not source_file or not Path(source_file).exists():
