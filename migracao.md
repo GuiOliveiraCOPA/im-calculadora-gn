@@ -1,5 +1,11 @@
 # Migração da Calculadora GLP x GN para Python (Flask)
 
+> **Documento histórico.** Descreve a migração como foi feita no repositório `IA - Calculadora GN`
+> (Azure DevOps). Lá esta calculadora ficava na pasta `6_Calculadora_Flask`, que hoje é a raiz deste
+> repositório: onde o texto diz `6_Calculadora_Flask/`, leia a raiz. Pastas citadas como
+> `5_Calculadora_Final`, `1_Processo_Extracao_Dados` etc. na raiz do projeto não fazem parte deste
+> repositório (as usadas pela calculadora estão em `processo_im/`). Estado atual: [README.md](README.md).
+
 **Data:** 29/09/2026
 **Versão anterior:** `5_Calculadora_Final` (HTML + JavaScript no navegador)
 **Versão nova:** `6_Calculadora_Flask` (servidor Python com Flask)

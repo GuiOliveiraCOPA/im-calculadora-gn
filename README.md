@@ -4,6 +4,13 @@ Mesma tela e mesmos resultados da `5_Calculadora_Final`, mas agora **filtros, c�
 formatação e montagem das tabelas rodam em Python**. O navegador só envia as
 premissas escolhidas e mostra o HTML devolvido pelo servidor.
 
+> **Repositório oficial da calculadora.** Veio da pasta `6_Calculadora_Flask` do repositório
+> `IA - Calculadora GN` (Azure DevOps, projeto Hub_IA), importada em 29/10/2026 com o histórico
+> dela. A raiz deste repositório corresponde àquela pasta. Mudanças na calculadora são feitas
+> aqui; o repositório do Azure DevOps fica só como referência. Documentos antigos
+> ([migracao.md](migracao.md), [migracao_etl.md](migracao_etl.md), [processo_im/](processo_im/LEIA-ME.md))
+> ainda citam `6_Calculadora_Flask/`: leia como a raiz deste repositório.
+
 ## Como usar
 
 Dê dois cliques em **`Iniciar_Calculadora.bat`**. Na primeira execução, ele cria o
@@ -25,8 +32,9 @@ interna), `FLASK_DEBUG=1` (servidor de desenvolvimento com recarga automática) 
 ### Servidor Linux (AlmaLinux)
 
 ```bash
-sudo dnf install -y python3.11 hostname
-cd /opt/calculadora-gn/6_Calculadora_Flask
+sudo dnf install -y python3.11 hostname git
+sudo git clone https://github.com/GuiOliveiraCOPA/im-calculadora-gn.git /opt/calculadora-gn
+cd /opt/calculadora-gn
 chmod +x Iniciar_Calculadora.sh
 ./Iniciar_Calculadora.sh            # 0.0.0.0:5000; cria o .venv na primeira vez
 ./Iniciar_Calculadora.sh --testar   # roda os testes
@@ -46,7 +54,7 @@ cabeçalho do arquivo.
 ### Em contêiner (Docker ou Podman) — recomendado para o servidor
 
 ```bash
-cd /opt/calculadora-gn/6_Calculadora_Flask
+cd /opt/calculadora-gn
 chmod +x Iniciar_Calculadora_Docker.sh
 ./Iniciar_Calculadora_Docker.sh              # roda os testes, constrói e sobe na porta 5000
 PORTA=8080 ./Iniciar_Calculadora_Docker.sh   # outra porta
@@ -57,7 +65,7 @@ PORTA=8080 ./Iniciar_Calculadora_Docker.sh   # outra porta
 O script usa o Docker (`docker compose`) ou o Podman (`podman compose`/`podman-compose`), o que
 estiver instalado. No AlmaLinux: `sudo dnf install -y podman podman-compose`.
 
-- **A imagem leva o código, o processo do IM e o mapa** (tudo dentro desta pasta, que é o
+- **A imagem leva o código, o processo do IM e o mapa** (tudo neste repositório, cuja raiz é o
   contexto do build). Ela inclui as bibliotecas dos extratores e o Chromium usado pelo Selenium.
 - **O ETL roda dentro do contêiner**, todo dia às 00:00 (horário de Brasília). Veja a seção
   [ETL da base tarifária](#etl-da-base-tarifária).
@@ -103,7 +111,21 @@ O processo de coleta e tratamento do IM foi migrado **sem alterações** para
 - conferir a base que a calculadora está usando (data de geração, registros, validação).
 
 Defina **`ETL_SENHA`** no servidor para a tela pedir senha (autenticação básica; qualquer usuário).
-Sem ela, a tela fica só oculta.
+Sem ela, a tela fica só oculta e **qualquer pessoa que souber o endereço pode disparar o ETL**.
+
+### Onde configurar as senhas (`ETL_SENHA` e `SECRET_KEY`)
+
+São variáveis de ambiente. **Nunca** coloque os valores no código nem no git.
+
+- **Docker Compose:** arquivo `.env` ao lado do `docker-compose.yml` (já está no `.gitignore`):
+  ```
+  ETL_SENHA=uma-senha-forte
+  SECRET_KEY=uma-chave-aleatoria-longa
+  ```
+- **Kubernetes:** um `Secret` com as duas chaves, lido no `Deployment` por `env[].valueFrom.secretKeyRef`
+  (ou sincronizado do Azure Key Vault, se a infra usar).
+
+Defina também a `SECRET_KEY`: sem ela, cada início do servidor gera uma chave nova.
 
 | Variável | Padrão | Uso |
 |---|---|---|
@@ -122,6 +144,11 @@ python -m etl --only SP,RJ
 python -m etl --skip-run            # não acessa os sites; reaproveita as planilhas por UF
 docker exec calculadora-gn python -m etl
 ```
+
+As planilhas por UF (`Fonte_Dados/PlanilhasUf/`) são geradas pelos extratores e **não estão no
+git**. Num servidor novo, elas só existem depois da primeira execução completa. Até lá, o
+`--skip-run` termina com "sem excel" nas UFs, e um extrator que falhar não tem planilha anterior
+para usar no lugar.
 
 O agendador confere o horário a cada 30 segundos. Se o servidor estiver desligado no horário, a
 execução não é recuperada depois; rode manualmente pela tela. Só uma execução roda por vez.
@@ -147,6 +174,44 @@ execução não é recuperada depois; rode manualmente pela tela. Só uma execu�
 Rode os testes sempre que alterar uma regra de cálculo. Se a regra mudar de propósito,
 a versão `5_Calculadora_Final\app.js` deixa de ser a referência, e o teste de paridade
 deve ser ajustado ou aposentado.
+
+A `5_Calculadora_Final` não está neste repositório (fica no repositório do Azure DevOps). Sem ela
+ao lado da pasta do projeto, ou sem Node.js, os 2 testes de paridade são **pulados**.
+
+## Checks antes de publicar uma mudança
+
+```bash
+python -m pytest                                        # 52 aprovados, 2 pulados (paridade)
+ruff check --isolated --select E9,F63,F7,F82,F811 .     # erros reais: sintaxe, nome indefinido etc.
+python -m mypy --ignore-missing-imports app.py calculadora etl
+```
+
+Para conferir as etapas 2 e 3 do ETL sem acessar os sites, gere a base a partir da planilha
+consolidada versionada e compare com a publicada (deve dar 0 diferenças):
+
+```bash
+python etl/rodar_atualizar_calculadora.py processo_im/3_Manutencao /tmp/saida.json /tmp/saida.js
+```
+
+Validação feita em 29/10/2026 (Python 3.12, todas as dependências): 52 testes aprovados; 36
+arquivos `.py` compilam; nenhum erro real no `ruff`; o `mypy` só aponta anotações de tipo (sem
+erro em execução); a base gerada pela planilha versionada é idêntica ao `data/tarifas.json`
+(459 registros).
+
+### Pontos de atenção conhecidos (comportamento do processo do IM, confirmados em teste)
+
+- **"Atualizar mesmo com erro" pode voltar tarifas antigas.** O `atualizar_calculadora.py` parte
+  sempre do `Tarifario_GN.xlsx` e só sobrescreve as UFs que vieram na extração. UF que falhar
+  **e** não tiver planilha anterior em `PlanilhasUf/` volta ao valor do `Tarifario_GN.xlsx`, e a
+  validação aprova (o formato está certo). Num teste sem nenhuma planilha, 282 dos 459 registros
+  mudaram. Em servidor novo, só use essa opção depois da primeira execução completa.
+- **Execução com erro sobrescreve a `Planilha_GN_Atualizada.xlsx`** com a consolidação daquela
+  execução, mesmo quando a base da calculadora não é publicada.
+- **Status `excel antigo`** (extrator terminou sem gerar planilha nova) não conta como erro: a
+  execução pode sair `sucesso` com a planilha anterior daquela UF.
+- **Dependências do processo sem versão fixa** (`processo_im/.../Fonte_Dados/requirements.txt`).
+  Cada build da imagem pode instalar versões novas. Em 29/10/2026 instalou pandas 3.1 e
+  PyMuPDF 2.0 (que já avisa que o `import fitz` será removido).
 
 ## Estrutura
 

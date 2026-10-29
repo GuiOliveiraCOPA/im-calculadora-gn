@@ -1,7 +1,7 @@
 # Calculadora GLP x GN (Flask + Waitress) + ETL do IM em contêiner.
 #
-# O contexto do build é esta pasta (6_Calculadora_Flask): o processo de coleta e tratamento
-# do IM (processo_im/) e o mapa (processo_im/4_Mapa_GN) já estão dentro dela.
+# O contexto do build é a raiz deste repositório: o processo de coleta e tratamento
+# do IM (processo_im/) e o mapa (processo_im/4_Mapa_GN) já estão dentro dele.
 #   docker build -t calculadora-gn .
 # Ou, mais simples:  ./Iniciar_Calculadora_Docker.sh
 #

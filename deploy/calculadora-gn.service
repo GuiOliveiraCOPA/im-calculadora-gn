@@ -18,11 +18,15 @@ Wants=network-online.target
 Type=simple
 User=calculadora
 Group=calculadora
-WorkingDirectory=/opt/calculadora-gn/6_Calculadora_Flask
+WorkingDirectory=/opt/calculadora-gn
 Environment=HOST=0.0.0.0
 Environment=PORTA=5000
 Environment=PYTHONIOENCODING=utf-8
-ExecStart=/opt/calculadora-gn/6_Calculadora_Flask/.venv/bin/python app.py
+# ETL diário dentro do serviço: descomente e instale o Chromium no servidor (extratores CE, PE, MS e MT).
+# A senha da tela /interno/etl fica fora deste arquivo, em /etc/calculadora-gn.env (ETL_SENHA=..., SECRET_KEY=...).
+#Environment=ETL_AGENDADOR=1
+EnvironmentFile=-/etc/calculadora-gn.env
+ExecStart=/opt/calculadora-gn/.venv/bin/python app.py
 Restart=on-failure
 RestartSec=5
 

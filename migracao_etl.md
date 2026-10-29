@@ -1,5 +1,11 @@
 # Migração do ETL do IM para a Calculadora GLP x GN (Flask)
 
+> **Documento histórico.** Descreve a migração como foi feita no repositório `IA - Calculadora GN`
+> (Azure DevOps). Lá esta calculadora ficava na pasta `6_Calculadora_Flask`, que hoje é a raiz deste
+> repositório: onde o texto diz `6_Calculadora_Flask/`, leia a raiz. Pastas citadas como
+> `5_Calculadora_Final`, `1_Processo_Extracao_Dados` etc. na raiz do projeto não fazem parte deste
+> repositório (as usadas pela calculadora estão em `processo_im/`). Estado atual: [README.md](README.md).
+
 **Data:** 19/10/2026
 **Origem:** processo de coleta e tratamento do time de Inteligência de Mercado (IM), que rodava
 pelo `AtualizarDados.bat`/`.sh` e pelo `Atualizar_Calculadora.bat`
@@ -147,7 +153,7 @@ cd 6_Calculadora_Flask
 .venv\Scripts\python -m pytest
 ```
 
-Resultado atual: **50 aprovados, 2 pulados** (paridade com o `app.js`, que exige Node.js). Os
+Resultado na migração: **50 aprovados, 2 pulados** (hoje: 52 aprovados, 2 pulados) (paridade com o `app.js`, que exige Node.js). Os
 testes do ETL usam um processo falso com a mesma estrutura de pastas e **não acessam os sites**.
 
 ### 2. Execução completa sem acessar os sites (recomendado antes do primeiro deploy)
