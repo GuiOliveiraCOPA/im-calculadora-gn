@@ -8,7 +8,6 @@ deploy/
 data/*.tmp
 data/etl/
 tests/paridade/_tarifas_original.json
-processo_im/4_Mapa_GN/index-NCESD2-12290.html
 
 # Senhas do docker compose: não entram na imagem.
 .env

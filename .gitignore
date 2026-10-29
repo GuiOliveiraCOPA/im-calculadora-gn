@@ -1,7 +1,17 @@
 .venv/*
 __pycache__/
 .pytest_cache/
-*.xlsx
 *.log
 # Senhas do docker compose (ETL_SENHA, SECRET_KEY): nunca versionar.
 .env
+
+# Planilhas fazem parte do projeto (Tarifario_GN.xlsx, Planilha_GN_Atualizada.xlsx).
+# Só as geradas a cada execução dos extratores ficam de fora.
+processo_im/1_Processo_Extracao_Dados/Comece_aqui/Fonte_Dados/PlanilhasUf/
+processo_im/1_Processo_Extracao_Dados/Comece_aqui/Fonte_Dados/*.xlsx
+# Planilhas temporárias do Excel abertas.
+~$*.xlsx
+
+# Estado do ETL (agendamento, histórico e saída temporária): é gerado em execução.
+data/etl/
+data/*.tmp
