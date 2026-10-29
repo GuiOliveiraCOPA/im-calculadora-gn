@@ -48,9 +48,11 @@ if [ "${1:-}" = "--testar" ]; then
 fi
 
 .venv/bin/python -m pip install -q -r requirements.txt
+# Bibliotecas do processo de coleta do IM (usadas pela tela /interno/etl e pelo agendamento).
+.venv/bin/python -m pip install -q -r processo_im/1_Processo_Extracao_Dados/Comece_aqui/Fonte_Dados/requirements.txt
 
 if [ ! -f data/tarifas.json ]; then
-  echo "ERRO: data/tarifas.json não encontrado. Rode antes o AtualizarDados.sh (1_Processo_Extracao_Dados/Comece_aqui)." >&2
+  echo "ERRO: data/tarifas.json não encontrado. Rode o ETL: .venv/bin/python -m etl" >&2
   exit 1
 fi
 

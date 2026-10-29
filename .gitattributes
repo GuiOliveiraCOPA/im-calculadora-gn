@@ -1,5 +1,0 @@
-# Scripts de Linux precisam de LF; os .bat do Windows, de CRLF.
-*.sh text eol=lf
-*.service text eol=lf
-*.timer text eol=lf
-*.bat text eol=crlf

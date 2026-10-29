@@ -18,11 +18,11 @@ Wants=network-online.target
 Type=simple
 User=calculadora
 Group=calculadora
-WorkingDirectory=/opt/calculadora-gn
+WorkingDirectory=/opt/calculadora-gn/6_Calculadora_Flask
 Environment=HOST=0.0.0.0
 Environment=PORTA=5000
 Environment=PYTHONIOENCODING=utf-8
-ExecStart=/opt/calculadora-gn/.venv/bin/python app.py
+ExecStart=/opt/calculadora-gn/6_Calculadora_Flask/.venv/bin/python app.py
 Restart=on-failure
 RestartSec=5
 

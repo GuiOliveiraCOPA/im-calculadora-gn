@@ -1,5 +1,7 @@
-.venv/
+.venv/*
 __pycache__/
 .pytest_cache/
-data/*.tmp
-tests/paridade/_tarifas_original.json
+*.xlsx
+*.log
+# Senhas do docker compose (ETL_SENHA, SECRET_KEY): nunca versionar.
+.env

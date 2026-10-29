@@ -7,7 +7,8 @@
 #   ./Iniciar_Calculadora_Docker.sh --parar      # derruba o contêiner
 #   ./Iniciar_Calculadora_Docker.sh --logs       # acompanha os logs
 #
-# O contêiner reinicia sozinho com o servidor (restart: unless-stopped).
+# O contêiner reinicia sozinho com o servidor (restart: unless-stopped) e roda o ETL do IM
+# todo dia às 00:00. Execução manual, log e agendamento: tela /interno/etl.
 set -euo pipefail
 
 cd "$(dirname "$(readlink -f "$0")")"
@@ -32,7 +33,7 @@ case "${1:-}" in
 esac
 
 if [ ! -f data/tarifas.json ]; then
-  echo "ERRO: data/tarifas.json não encontrado. Rode antes o AtualizarDados.sh (1_Processo_Extracao_Dados/Comece_aqui)." >&2
+  echo "ERRO: data/tarifas.json não encontrado (base inicial da imagem)." >&2
   exit 1
 fi
 
@@ -53,6 +54,7 @@ for _ in $(seq 1 30); do
     curl -fsS "http://127.0.0.1:${PORTA}/saude"; echo
     ENDERECO="$(hostname -I 2>/dev/null | awk '{print $1}' || true)"
     echo "Acesse: http://${ENDERECO:-127.0.0.1}:${PORTA}/"
+    echo "ETL (tela interna): http://${ENDERECO:-127.0.0.1}:${PORTA}/interno/etl"
     exit 0
   fi
   echo -n "."; sleep 1
