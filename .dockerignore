@@ -1,0 +1,9 @@
+# Só entra na imagem o que ela precisa.
+.git/
+.venv/
+deploy/
+etl/
+**/__pycache__/
+**/.pytest_cache/
+**/*.pyc
+data/*.tmp

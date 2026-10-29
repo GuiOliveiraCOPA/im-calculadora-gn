@@ -1,0 +1,223 @@
+{#- Área de resultados. Renderizada na página inicial e devolvida por /api/calcular a cada alteração. -#}
+{%- set r = resultado -%}
+{%- if calculado -%}
+  {%- set sem_credito = (r.gn_bruto_por_kg_glp|moeda) ~ " / kg" -%}
+  {%- set resumo = "Cálculo automático: " ~ ("com cascata" if r.cascata else "sem cascata")
+      ~ " | Entrada " ~ ("GLP" if r.entrada_glp else "GN")
+      ~ " | PIS/Cofins " ~ ((r.aliquota_pis_cofins * 100)|numero) ~ "%"
+      ~ " | ICMS " ~ ((r.aliquota_icms * 100)|numero) ~ "%" -%}
+  {%- set linha_volume = ["Volume", (r.volume_glp|numero) ~ " kg", (r.volume_gn|numero) ~ " m³"] -%}
+  {%- set cenarios = [
+      linha_volume,
+      ["Tarifa líquida unitária", (r.tarifa_liquida_unitaria_glp|moeda) ~ " / kg", (r.tarifa_liquida_unitaria_gn|moeda) ~ " / m³"],
+      ["Fatura líquida", r.fatura_liquida|moeda, r.fatura_liquida|moeda],
+      ["Tarifa bruta unitária", (r.tarifa_bruta_unitaria_glp|moeda) ~ " / kg", (r.tarifa_bruta_unitaria_gn|moeda) ~ " / m³"],
+      ["Fatura bruta", r.fatura_bruta_glp|moeda, r.fatura_bruta_gn|moeda],
+    ] -%}
+  {%- set cenarios_sem_credito = [
+      linha_volume,
+      ["Tarifa bruta unitária", sem_credito, (r.tarifa_bruta_unitaria_gn|moeda) ~ " / m³"],
+      ["Fatura bruta", r.fatura_bruta_gn|moeda, r.fatura_bruta_gn|moeda],
+    ] -%}
+{%- else -%}
+  {%- set resumo = resultado.mensagem -%}
+  {%- set cenarios = [] -%}
+  {%- set cenarios_sem_credito = [] -%}
+{%- endif -%}
+{%- macro linhas_cenario(linhas) -%}
+  {%- for rotulo, glp, gn in linhas %}
+                  <tr>
+                    <td>{{ rotulo }}</td>
+                    <td>{{ glp }}</td>
+                    <td>{{ gn }}</td>
+                  </tr>
+  {%- endfor %}
+{%- endmacro -%}
+        <section class="results" id="resultados">
+          <div class="kpi-grid">
+            <article class="kpi">
+              <span>Volume GLP</span>
+              <strong id="volumeGlp">{{ (r.volume_glp|numero ~ " kg") if calculado else "-" }}</strong>
+            </article>
+            <article class="kpi">
+              <span>Volume GN</span>
+              <strong id="volumeGn">{{ (r.volume_gn|numero ~ " m³") if calculado else "-" }}</strong>
+            </article>
+            <article class="panel help-steps" aria-label="Como usar a calculadora">
+              <h3>Como usar a calculadora</h3>
+              <ol>
+                <li>Escolha o estado.</li>
+                <li>Selecione o segmento.</li>
+                <li>Selecione a concessionária.</li>
+                <li>Informe se o volume será de GLP ou GN.</li>
+                <li>Digite o volume mensal.</li>
+              </ol>
+            </article>
+            <p class="conversion-note volume-conversion-note"><b>Taxa de conversão de poder calorífico:</b> GLP para GN = * 1,210526;</p>
+            <a class="map-navigation-card" href="{{ url_for('mapa', arquivo='index.html') }}" aria-label="Abrir mapa de disponibilidade de Gás Natural">
+              <span class="map-navigation-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9S14.5 18.3 12 21M12 3C9.5 5.7 8.2 8.7 8.2 12S9.5 18.3 12 21"></path>
+                </svg>
+              </span>
+              <span class="map-navigation-copy">
+                <strong>Mapa de GN</strong>
+              </span>
+              <span class="map-navigation-arrow" aria-hidden="true">›</span>
+            </a>
+          </div>
+          <div class="calculation-hidden-values" aria-hidden="true">
+            <span id="faturaLiquida">{{ r.fatura_liquida|moeda if calculado else "-" }}</span>
+            <span id="faturaBruta">{{ r.fatura_bruta_gn|moeda if calculado else "-" }}</span>
+          </div>
+
+          <div class="comparison-stack">
+          <div id="comparisonCreditoPanel" class="panel comparison-panel"{% if not industrial %} hidden{% endif %}>
+            <div class="section-title compact comparison-heading">
+              <div class="comparison-heading-row">
+                <h2>Comparativo GLP x GN</h2>
+                <span class="tax-credit-context">Empresas que podem se creditar dos impostos</span>
+              </div>
+              <p id="resultadoResumo">{{ resumo }}</p>
+            </div>
+            <div class="result-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Indicador</th>
+                    <th>Cálculo GLP</th>
+                    <th>Cálculo GN</th>
+                  </tr>
+                </thead>
+                <tbody id="cenariosBody">{{ linhas_cenario(cenarios) }}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel comparison-panel comparison-panel-copy">
+            <div class="section-title compact comparison-heading">
+              <div class="comparison-heading-row">
+                <h2>Comparativo GLP x GN</h2>
+                <span class="tax-credit-context">Empresas que NÃO podem se creditar dos impostos</span>
+              </div>
+              <p id="resultadoResumoCopia">{{ resumo }}</p>
+            </div>
+            <div class="result-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Indicador</th>
+                    <th>Cálculo GLP</th>
+                    <th>Cálculo GN</th>
+                  </tr>
+                </thead>
+                <tbody id="cenariosBodyCopia">{{ linhas_cenario(cenarios_sem_credito) }}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          </div>
+
+          <div class="panel faixas-wide">
+            <div class="section-title compact">
+              <h2>Faixas utilizadas</h2>
+              <p id="faixasResumo">
+                {%- if not calculado -%}
+                  O tipo de cálculo é definido automaticamente pela tarifa disponível na base.
+                {%- elif r.cascata -%}
+                  O volume convertido de GN foi distribuído entre as faixas até atingir o consumo equivalente.
+                {%- else -%}
+                  O volume convertido de GN foi aplicado em uma única faixa tarifária.
+                {%- endif -%}
+              </p>
+            </div>
+            {%- set mostra_termo_fixo = not (calculado and r.cascata) %}
+            <div class="result-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Faixa mín. (m³)</th>
+                    <th>Faixa máx. (m³)</th>
+                    <th>Consumo na faixa (m³)</th>
+                    <th>Tarifa líquida unitária (R$/m³)</th>
+                    <th id="termoFixoHeader"{% if not mostra_termo_fixo %} hidden{% endif %}>Termo Fixo Líquido (R$)</th>
+                    <th>Fatura líquida (R$)</th>
+                    <th id="pisCofinsHeader">PIS/Cofins (R${% if calculado %} | {{ (r.aliquota_pis_cofins * 100)|numero }}%{% endif %})</th>
+                    <th id="icmsHeader">ICMS (R${% if calculado %} | {{ (r.aliquota_icms * 100)|numero }}%{% endif %})</th>
+                    <th>Fatura bruta (R$)</th>
+                    <th>Tarifa bruta unitária (R$/m³)</th>
+                  </tr>
+                </thead>
+                <tbody id="faixasBody">
+                {%- if calculado %}{% for f in r.faixas %}
+                  <tr>
+                    <td>{{ f.faixa_min|numero }}</td>
+                    <td>{{ f.faixa_max|faixa_maxima }}</td>
+                    <td>{{ f.consumo|numero }}</td>
+                    <td>{{ f.tarifa_liquida_unitaria|numero }}</td>
+                    {%- if not r.cascata %}
+                    <td>{{ f.termo_fixo|numero }}</td>
+                    {%- endif %}
+                    <td>{{ f.fatura_liquida|numero }}</td>
+                    <td>{{ f.pis_cofins|numero }}</td>
+                    <td>{{ f.icms|numero }}</td>
+                    <td>{{ f.fatura_bruta|numero }}</td>
+                    <td>{{ f.tarifa_bruta_unitaria|numero }}</td>
+                  </tr>
+                {%- endfor %}{% endif %}
+                </tbody>
+                <tfoot id="faixasFoot">
+                {%- if calculado %}
+                  <tr>
+                    <td colspan="2">Total</td>
+                    <td>{{ r.total_consumo_faixas|numero }}</td>
+                    <td>{{ r.tarifa_liquida_media|numero }}</td>
+                    {%- if not r.cascata %}
+                    <td>{{ r.termo_fixo|numero }}</td>
+                    {%- endif %}
+                    <td>{{ r.fatura_liquida|numero }}</td>
+                    <td>{{ r.total_pis_cofins|numero }}</td>
+                    <td>{{ r.total_icms|numero }}</td>
+                    <td>{{ r.fatura_bruta_gn|numero }}</td>
+                    <td>{{ r.tarifa_bruta_media|numero }}</td>
+                  </tr>
+                {%- endif %}
+                </tfoot>
+              </table>
+            </div>
+            <div class="faixas-mobile-list" id="faixasMobile">
+            {%- if calculado %}
+              {%- for f in r.faixas %}
+              <article class="faixa-mobile-card"><h3>Faixa {{ loop.index }}</h3><dl>
+                <div><dt>Faixa mín. (m³)</dt><dd>{{ f.faixa_min|numero }}</dd></div>
+                <div><dt>Faixa máx. (m³)</dt><dd>{{ f.faixa_max|faixa_maxima }}</dd></div>
+                <div><dt>Consumo na faixa (m³)</dt><dd>{{ f.consumo|numero }}</dd></div>
+                <div><dt>Tarifa líquida unitária (R$/m³)</dt><dd>{{ f.tarifa_liquida_unitaria|numero }}</dd></div>
+                {%- if not r.cascata %}
+                <div><dt>Termo Fixo Líquido (R$)</dt><dd>{{ f.termo_fixo|numero }}</dd></div>
+                {%- endif %}
+                <div><dt>Fatura líquida (R$)</dt><dd>{{ f.fatura_liquida|numero }}</dd></div>
+                <div><dt>PIS/Cofins</dt><dd>{{ f.pis_cofins|numero }}</dd></div>
+                <div><dt>ICMS</dt><dd>{{ f.icms|numero }}</dd></div>
+                <div><dt>Fatura bruta (R$)</dt><dd>{{ f.fatura_bruta|numero }}</dd></div>
+                <div><dt>Tarifa bruta unitária (R$/m³)</dt><dd>{{ f.tarifa_bruta_unitaria|numero }}</dd></div>
+              </dl></article>
+              {%- endfor %}
+              <article class="faixa-mobile-card"><h3>Total</h3><dl>
+                <div><dt>Consumo total (m³)</dt><dd>{{ r.total_consumo_faixas|numero }}</dd></div>
+                <div><dt>Tarifa líquida média (R$/m³)</dt><dd>{{ r.tarifa_liquida_media|numero }}</dd></div>
+                {%- if not r.cascata %}
+                <div><dt>Termo Fixo Líquido (R$)</dt><dd>{{ r.termo_fixo|numero }}</dd></div>
+                {%- endif %}
+                <div><dt>Fatura líquida (R$)</dt><dd>{{ r.fatura_liquida|numero }}</dd></div>
+                <div><dt>PIS/Cofins</dt><dd>{{ r.total_pis_cofins|numero }}</dd></div>
+                <div><dt>ICMS</dt><dd>{{ r.total_icms|numero }}</dd></div>
+                <div><dt>Fatura bruta (R$)</dt><dd>{{ r.fatura_bruta_gn|numero }}</dd></div>
+                <div><dt>Tarifa bruta unitária (R$/m³)</dt><dd>{{ r.tarifa_bruta_media|numero }}</dd></div>
+              </dl></article>
+            {%- endif %}
+            </div>
+          </div>
+        </section>

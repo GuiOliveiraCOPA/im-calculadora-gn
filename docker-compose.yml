@@ -1,0 +1,26 @@
+# Calculadora GLP x GN em contêiner.
+#
+#   docker compose up -d --build        (ou: podman compose up -d --build)
+#   docker compose logs -f
+#   docker compose down
+#
+# Porta no servidor: PORTA=8080 docker compose up -d
+
+services:
+  calculadora:
+    build:
+      context: .                           # raiz do repositório (a imagem leva o mapa/)
+      dockerfile: Dockerfile
+      target: final
+    image: calculadora-gn:latest
+    container_name: calculadora-gn
+    ports:
+      - "${PORTA:-5000}:5000"
+    volumes:
+      # Base de tarifas do servidor, atualizada pelo AtualizarDados.sh.
+      # A calculadora recarrega sozinha quando o arquivo muda (sem reiniciar o contêiner).
+      # ":z" ajusta o rótulo do SELinux (AlmaLinux/RHEL); é ignorado onde não há SELinux.
+      - ./data:/app/data:ro,z
+    restart: unless-stopped
+    environment:
+      TZ: America/Sao_Paulo

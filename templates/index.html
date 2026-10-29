@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calculadora GLP x GN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/calculadora.css') }}" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Inteligência de Mercado</p>
+          <h1>Calculadora GLP x GN</h1>
+        </div>
+        <aside class="premissas-helper" aria-label="Abrir premissas do modelo" role="button" tabindex="0" aria-expanded="false" aria-controls="premissasPopover">
+        <img src="{{ url_for('static', filename='assets/copa-popup-nova.png') }}" alt="Copa Energia" width="112" height="68" />
+        <div class="premissas-popover" id="premissasPopover" role="tooltip">
+          <h3>Premissas</h3>
+          <strong>REGRAS GERAIS:</strong>
+          <p><b>Preços do GN:</b> valores por concessionária, segmento e faixas de consumo;</p>
+          <p><b>Preços comparativos:</b> considera as faixas de consumo das concessionárias;</p>
+          <p><b>Taxa de conversão:</b> 1m3 de GN = 0,826086957 kg de GLP;</p>
+          <p><b>Taxa de conversão de poder calorífico:</b> GLP para GN = * 1,210526;</p>
+          <strong class="danger-text">LIMITAÇÕES DO MODELO:</strong>
+          <p><b>Tarifas:</b> padrão, desconsiderando incentivos fiscais ou tarifas subsidiadas, assim como eventuais descontos obtidos pelos clientes.</p>
+        </div>
+      </aside>
+      </header>
+
+      <section class="workspace">
+        <form class="panel controls" id="calculatorForm" method="get" action="{{ url_for('index') }}"
+              data-api="{{ url_for('api_calcular') }}">
+          <div class="section-title">
+            <h2>Premissas</h2>
+            <p>Selecione as premissas e informe o volume mensal de GN ou GLP.</p>
+          </div>
+
+          {% macro opcoes(filtro) -%}
+            {% for valor in filtro.opcoes %}<option value="{{ valor }}"{% if valor == filtro.selecionado %} selected{% endif %}>{{ valor }}</option>{% endfor %}
+          {%- endmacro %}
+
+          <label>
+            Estado
+            <select id="ufSelect" name="uf">{{ opcoes(filtros.uf) }}</select>
+          </label>
+
+          <label>
+            Segmento
+            <select id="segmentoCopaSelect" name="segmento_copa">{{ opcoes(filtros.segmento_copa) }}</select>
+          </label>
+
+          <label>
+            Concessionária
+            <select id="concessionariaSelect" name="concessionaria">{{ opcoes(filtros.concessionaria) }}</select>
+          </label>
+          <select id="segmentoSelect" name="segmento" hidden>{{ opcoes(filtros.segmento) }}</select>
+
+          <fieldset class="segmented">
+            <legend>Volume informado</legend>
+            <label>
+              <input type="radio" name="tipo_entrada" value="glp"{% if tipo_entrada == 'glp' %} checked{% endif %} />
+              GLP (kg)
+            </label>
+            <label>
+              <input type="radio" name="tipo_entrada" value="gn"{% if tipo_entrada == 'gn' %} checked{% endif %} />
+              GN (m³)
+            </label>
+          </fieldset>
+
+          <label>
+            <span id="volumeInputLabel">Volume mensal</span>
+            <input id="consumoInput" name="volume" type="number" min="0" step="0.01" value="{{ volume_texto }}" />
+          </label>
+
+          <noscript><button type="submit">Calcular</button></noscript>
+        </form>
+
+        {% include "_resultados.html" %}
+      </section>
+      <!-- Base tarifária gerada em {{ base.generated_at }} ({{ base.records|length }} registros) -->
+    </main>
+
+    <script src="{{ url_for('static', filename='js/premissas.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/calculadora.js') }}"></script>
+  </body>
+</html>

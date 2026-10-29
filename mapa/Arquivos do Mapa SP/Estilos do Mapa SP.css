@@ -1,0 +1,24 @@
+:root {
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #102a43;
+  background: #eef3f5;
+}
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+button { font: inherit; }
+.network-page { width: 100%; height: 100%; display: flex; flex-direction: column; background: #eef3f5; }
+.network-toolbar { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 18px; border-bottom: 3px solid #ff671d; background: #ffffff; box-shadow: 0 2px 10px #102a4318; z-index: 1000; }
+.network-toolbar h1 { margin: 0; color: #073b4c; font-size: 21px; }
+.network-toolbar p { margin: 3px 0 0; color: #61758a; font-size: 12px; }
+.network-actions { display: flex; align-items: center; gap: 7px; }
+.network-location { padding: 0 5px; color: #61758a; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.network-actions button { min-width: 36px; height: 36px; padding: 0 12px; border: 1px solid #c8d4de; border-radius: 6px; background: #ffffff; color: #073b4c; font-weight: 700; cursor: pointer; }
+.network-actions button:hover, .network-actions button:focus-visible { border-color: #2f6f90; background: #f3f8fb; box-shadow: 0 3px 10px #102a4324; outline: none; transform: translateY(-1px); }
+#networkClose { border-color: #ff671d; color: #a63b0a; }
+#networkMap { flex: 1; min-height: 0; width: 100%; background: #e9eff2; }
+.leaflet-control-attribution { font-size: 10px; }
+@media (max-width: 650px) {
+  .network-toolbar { align-items: flex-start; flex-direction: column; gap: 8px; padding: 9px 10px; }
+  .network-actions { width: 100%; flex-wrap: wrap; }
+  .network-actions button { flex: 1; }
+}
