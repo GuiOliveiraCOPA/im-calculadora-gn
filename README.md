@@ -71,15 +71,23 @@ estiver instalado. No AlmaLinux: `sudo dnf install -y podman podman-compose`.
   [ETL da base tarifária](#etl-da-base-tarifária).
 - **O estado fica em volumes** (`tarifas`, `planilhas_uf`, `passado_tarifas`, `planilha_final`,
   `execucoes_cmd`): base publicada, agendamento, histórico, planilhas por UF, histórico de tarifas
-  e logs sobrevivem a reinícios e a novas versões da imagem. Na primeira subida, cada volume é
-  preenchido com o conteúdo da imagem.
+  e logs sobrevivem a reinícios e a novas versões da imagem. Na primeira subida, o Docker e o
+  Podman preenchem cada volume vazio com o conteúdo da imagem (por exemplo, o `tarifas.json`
+  versionado). Depois disso vale o conteúdo do volume: uma imagem nova **não** substitui a base
+  que já está nele. Em Kubernetes, volumes persistentes (PVC) **não** são preenchidos com o
+  conteúdo da imagem: montados por cima de `/app/data` e das pastas do processo, eles escondem
+  os arquivos da imagem e começam vazios, a menos que algo os copie antes (por exemplo, um
+  initContainer).
 - **A base manual `Tarifario_GN.xlsx`** vem da pasta do servidor
   (`processo_im/2_Bases_Origem`, montada só para leitura): basta trocar o arquivo, sem reconstruir.
 - Quando o ETL publica um `tarifas.json` novo, a calculadora carrega sozinha em segundos,
   **sem reiniciar o contêiner**. Base inválida → página de erro (503), nunca cálculo errado.
 - **Reinicia sozinho** com o servidor (`restart: unless-stopped`) e tem checagem de saúde em `/saude`.
 - Roda como usuário sem privilégio, no horário de Brasília.
-- Os testes rodam na construção (`--target teste`). Se falharem, a imagem nova não sobe.
+- Os testes rodam no estágio `teste` da imagem. O `Iniciar_Calculadora_Docker.sh`/`.bat` constrói
+  esse estágio antes de subir: se os testes falharem, a imagem nova não sobe. Um
+  `docker compose up --build` ou `docker build` direto constrói só o estágio `final` e **não roda
+  os testes**; num pipeline de CI, rode antes `docker build --target teste .`.
 
 Com o contêiner, o `deploy/calculadora-gn.service` (systemd) não é necessário.
 
