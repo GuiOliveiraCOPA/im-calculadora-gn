@@ -1,0 +1,2 @@
+# dev (copadev-inter): 1 replica. ETL grava, entao mantem persistencia.
+replicaCount: 1
