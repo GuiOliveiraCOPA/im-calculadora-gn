@@ -1,0 +1,31 @@
+name: CI (PR) — im-calculadora-gn
+
+# Validacao em PR para main: roda os testes via estagio 'teste' do Dockerfile (pytest, como o repo faz)
+# + analise Sonar (aviso). Nao publica imagem nem implanta.
+on:
+  pull_request:
+    branches: [dev, hml, main]
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    name: Testes (Dockerfile target teste)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build do estagio de teste (roda pytest dentro)
+        run: docker build --target teste -t calc-teste:ci -f Dockerfile .
+
+  sonar:
+    name: SonarQube (aviso)
+    needs: testes
+    uses: Copa-Infraestrutura/devops-shared-workflows/.github/workflows/sonarqube-reusable.yml@main
+    with:
+      build_tool: cli
+      fail_on_gate: false
+      runner_labels: '["self-hosted","Linux","X64","SonarQube-onpremises"]'
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
