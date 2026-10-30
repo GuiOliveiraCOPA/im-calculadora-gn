@@ -1,0 +1,52 @@
+# Values da calculadora GN (back Flask/Python) para o chart generico copa-app.
+# Fiel ao docker-compose.yml real do repo: 5 volumes persistentes + base Excel + /dev/shm p/ Chromium.
+service:
+  enabled: true
+  port: 5000
+
+health:
+  enabled: true
+  path: /saude
+  port: 5000
+
+# ETL_SENHA e SECRET_KEY sincronizados do Key Vault para este Secret (via Secrets Store CSI / External Secrets).
+secretRef:
+  name: im-calculadora-gn-secrets
+
+env:
+  TZ: America/Sao_Paulo
+
+# Chromium headless (Selenium) dos extratores precisa de /dev/shm grande, senao quebra.
+shm:
+  enabled: true
+  sizeLimit: 1Gi
+  mountPath: /dev/shm
+
+# 5 volumes persistentes do compose + a base Excel do IM (editavel sem rebuild).
+persistence:
+  enabled: true
+  storageClass: managed-csi
+  volumes:
+    - name: tarifas
+      size: 2Gi
+      mountPath: /app/data
+    - name: planilhas-uf
+      size: 1Gi
+      mountPath: /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Fonte_Dados/PlanilhasUf
+    - name: passado-tarifas
+      size: 1Gi
+      mountPath: /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/PassadoTarifas
+    - name: planilha-final
+      size: 1Gi
+      mountPath: /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Planilha_Final
+    - name: execucoes-cmd
+      size: 1Gi
+      mountPath: /app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Execucoes_CMD
+    # Base manual do IM (Tarifario_GN.xlsx), editada no Excel. Alimentada externamente; a app le.
+    - name: bases-origem
+      size: 1Gi
+      mountPath: /app/processo_im/2_Bases_Origem
+
+resources:
+  requests: { cpu: 250m, memory: 512Mi }
+  limits:   { cpu: "1", memory: 1Gi }
