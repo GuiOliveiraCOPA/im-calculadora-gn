@@ -1,14 +1,11 @@
-# Calculadora GLP x GN + ETL do IM em contêiner.
+# Calculadora GLP x GN em contêiner, para desenvolvimento e teste local.
+# Produção roda no Kubernetes (deploy/k8s/); este arquivo não é usado lá.
 #
-#   docker compose up -d --build        (ou: podman compose up -d --build)
+#   cp .env.example .env      (preencha host, http_path e credencial)
+#   docker compose up -d --build
 #   docker compose logs -f
+#   docker compose exec calculadora python scripts/testar_conexao.py
 #   docker compose down
-#
-# Porta no servidor: PORTA=8080 docker compose up -d
-# Senha da tela /interno/etl: ETL_SENHA='...' docker compose up -d   (recomendado)
-#
-# O ETL roda dentro do contêiner, todo dia às 00:00 (horário de Brasília). O horário pode ser
-# alterado na tela /interno/etl. Execução manual pelo terminal: docker exec calculadora-gn python -m etl
 
 services:
   calculadora:
@@ -18,30 +15,10 @@ services:
       target: final
     image: calculadora-gn:latest
     container_name: calculadora-gn
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0              # dentro do contêiner, escuta em todas as interfaces
+      PORTA: "5000"              # porta interna fixa; a do servidor é a do "ports" abaixo
     ports:
       - "${PORTA:-5000}:5000"
-    shm_size: "1gb"                          # Chromium headless dos extratores
-    volumes:
-      # Estado que precisa sobreviver a reinícios e a novas versões da imagem.
-      # Na primeira subida, cada volume é preenchido com o conteúdo da imagem.
-      - tarifas:/app/data                    # tarifas.json publicado + agendamento e histórico do ETL
-      - planilhas_uf:/app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Fonte_Dados/PlanilhasUf
-      - passado_tarifas:/app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/PassadoTarifas
-      - planilha_final:/app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Planilha_Final
-      - execucoes_cmd:/app/processo_im/1_Processo_Extracao_Dados/Comece_aqui/Execucoes_CMD
-      # Base manual do IM (Tarifario_GN.xlsx), editada no Excel: vem da pasta do servidor,
-      # para que uma nova versão do arquivo valha sem reconstruir a imagem.
-      # ":z" ajusta o rótulo do SELinux (AlmaLinux/RHEL); é ignorado onde não há SELinux.
-      - ./processo_im/2_Bases_Origem:/app/processo_im/2_Bases_Origem:ro,z
     restart: unless-stopped
-    environment:
-      TZ: America/Sao_Paulo
-      ETL_SENHA: ${ETL_SENHA:-}
-      SECRET_KEY: ${SECRET_KEY:-}
-
-volumes:
-  tarifas:
-  planilhas_uf:
-  passado_tarifas:
-  planilha_final:
-  execucoes_cmd:

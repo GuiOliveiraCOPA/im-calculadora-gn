@@ -1,8 +1,0 @@
-﻿openpyxl
-pandas
-requests
-beautifulsoup4
-pdfplumber
-PyMuPDF
-selenium
-pypdf

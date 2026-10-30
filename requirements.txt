@@ -1,2 +1,6 @@
 Flask>=3.1,<4
 waitress>=3.0,<4
+# Leitura da Gold no SQL Warehouse. Sem pyarrow: o contrato tem ~500 linhas e não precisa de Arrow/cloud fetch.
+databricks-sql-connector>=4.8,<5
+# OAuth (service principal e login pela CLI) do credenciais.py.
+databricks-sdk>=0.158,<1

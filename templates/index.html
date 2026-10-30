@@ -27,6 +27,12 @@
         </div>
       </aside>
       </header>
+      {%- if base_antiga %}
+
+      <p class="panel aviso-base" role="status">
+        <b>Atenção:</b> a base tarifária não é atualizada desde {{ base.carregado_em|data }}. Os valores podem estar desatualizados.
+      </p>
+      {%- endif %}
 
       <section class="workspace">
         <form class="panel controls" id="calculatorForm" method="get" action="{{ url_for('index') }}"
@@ -78,7 +84,7 @@
 
         {% include "_resultados.html" %}
       </section>
-      <!-- Base tarifária gerada em {{ base.generated_at }} ({{ base.records|length }} registros) -->
+      <!-- Base tarifária gerada em {{ base.generated_at }} ({{ base.records|length }} registros, origem {{ base.origem }}) -->
     </main>
 
     <script src="{{ url_for('static', filename='js/premissas.js') }}"></script>

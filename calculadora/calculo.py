@@ -2,7 +2,8 @@
 
 Porta fiel de 5_Calculadora_Final/app.js: mesma ordem de operações em ponto
 flutuante, para que os resultados sejam idênticos aos da versão no navegador
-(verificado por tests/test_paridade_js.py).
+(verificado por tests/test_paridade_js.py). Única regra diferente de propósito:
+o termo fixo na cascata (B-03, ADR 0005 do tratamento).
 """
 
 from __future__ import annotations
@@ -10,6 +11,8 @@ from __future__ import annotations
 import unicodedata
 from dataclasses import dataclass
 
+# Valores de referência, usados quando a base não traz os parâmetros (fixture antiga).
+# Com a Gold, vêm da fct_gn_parametro_vigente_calculadora (ADR 0018 do tratamento).
 FATOR_GN_PARA_GLP = 0.826087
 FATOR_GLP_PARA_GN = 1.210526
 ALIQUOTA_MONOFASICA_GLP = 1.6377
@@ -91,6 +94,7 @@ class ResultadoCalculo:
     total_icms: float
     fatura_bruta_gn: float
     total_consumo_faixas: float
+    aliquota_monofasica_glp: float = ALIQUOTA_MONOFASICA_GLP
 
     @property
     def tarifa_liquida_unitaria_glp(self) -> float:
@@ -98,7 +102,7 @@ class ResultadoCalculo:
 
     @property
     def tarifa_bruta_unitaria_glp(self) -> float:
-        return self.tarifa_liquida_unitaria_glp + ALIQUOTA_MONOFASICA_GLP
+        return self.tarifa_liquida_unitaria_glp + self.aliquota_monofasica_glp
 
     @property
     def fatura_bruta_glp(self) -> float:
@@ -195,17 +199,31 @@ def _calcular_com_cascata(linhas, volume_gn):
             ultima = row
     if not faixas:
         return None
-    return ultima, faixas, 0
+    # B-03 (resposta da IM, ADR 0005): soma o termo fixo da última Classe atingida, na faixa dela.
+    termo_fixo = termo_fixo_liquido(ultima)
+    if termo_fixo:
+        f = faixas[-1]
+        faixas[-1] = _faixa(ultima, f.consumo, f.consumo * f.tarifa_liquida_unitaria, termo_fixo, f.tarifa_liquida_unitaria)
+    return ultima, faixas, termo_fixo
 
 
-def calcular(records, uf, segmento_copa, concessionaria, segmento, tipo_entrada, volume) -> ResultadoCalculo | SemResultado:
+def fatores_conversao(parametros=None) -> tuple[float, float]:
+    """(GN→GLP, GLP→GN): da Gold quando a base traz os parâmetros, senão as constantes."""
+    parametros = parametros or {}
+    return (parametros.get("FATOR_GN_PARA_GLP", FATOR_GN_PARA_GLP),
+            parametros.get("FATOR_GLP_PARA_GN", FATOR_GLP_PARA_GN))
+
+
+def calcular(records, uf, segmento_copa, concessionaria, segmento, tipo_entrada, volume,
+             parametros=None) -> ResultadoCalculo | SemResultado:
     linhas, cascata = _escolher_modalidade(linhas_tarifarias(records, uf, segmento_copa, concessionaria, segmento))
     if not linhas or not volume or volume <= 0:
         return SemResultado(MSG_SEM_TARIFA)
 
+    fator_gn_para_glp, fator_glp_para_gn = fatores_conversao(parametros)
     entrada_glp = tipo_entrada == "glp"
-    volume_glp = volume if entrada_glp else volume * FATOR_GN_PARA_GLP
-    volume_gn = volume * FATOR_GLP_PARA_GN if entrada_glp else volume
+    volume_glp = volume if entrada_glp else volume * fator_gn_para_glp
+    volume_gn = volume * fator_glp_para_gn if entrada_glp else volume
 
     calculado = _calcular_com_cascata(linhas, volume_gn) if cascata else _calcular_sem_cascata(linhas, volume_gn)
     if calculado is None:
@@ -237,4 +255,5 @@ def calcular(records, uf, segmento_copa, concessionaria, segmento, tipo_entrada,
         total_icms=total_icms,
         fatura_bruta_gn=fatura_bruta,
         total_consumo_faixas=consumo_total,
+        aliquota_monofasica_glp=(parametros or {}).get("ALIQUOTA_MONOFASICA_GLP", ALIQUOTA_MONOFASICA_GLP),
     )

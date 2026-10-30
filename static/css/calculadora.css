@@ -1265,3 +1265,13 @@ td {
   }
 }
 
+
+/* Avisos da base lida da Gold: base antiga (topo) e situação da tarifa escolhida. */
+.aviso-base {
+  margin: 0 0 16px;
+  border-left: 4px solid #c0392b;
+}
+
+.tarifa-situacao {
+  font-size: 0.85rem;
+}

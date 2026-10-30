@@ -1,13 +1,13 @@
-# Build da calculadora (Dockerfile nesta pasta). Só entra o que a imagem precisa.
+# Só entra na imagem o que a calculadora precisa (ver Dockerfile).
 .venv/
 .git/
+.cache/
 deploy/
+docs/
 **/__pycache__/
 **/.pytest_cache/
 **/*.pyc
-data/*.tmp
-data/etl/
-tests/paridade/_tarifas_original.json
+mapa/index-NCESD2-12290.html
 
-# Senhas do docker compose: não entram na imagem.
+# Credenciais: nunca entram na imagem.
 .env

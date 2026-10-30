@@ -53,7 +53,18 @@
                 <li>Digite o volume mensal.</li>
               </ol>
             </article>
-            <p class="conversion-note volume-conversion-note"><b>Taxa de conversão de poder calorífico:</b> GLP para GN = * 1,210526;</p>
+            <p class="conversion-note volume-conversion-note"><b>Taxa de conversão de poder calorífico:</b> GLP para GN = * {{ fator_glp_para_gn|fator }};</p>
+            {%- if situacao %}
+            <p class="conversion-note tarifa-situacao" id="situacaoTarifa">
+              {%- if situacao.atualizado_em %}<b>Tarifa atualizada em:</b> {{ situacao.atualizado_em|data }}{% endif %}
+              {%- if situacao.vigencia_inicio %}{% if situacao.atualizado_em %} · {% endif %}<b>Vigente desde:</b> {{ situacao.vigencia_inicio|data }}{% endif %}
+              {%- if situacao.deliberacao %}{% if situacao.atualizado_em or situacao.vigencia_inicio %} · {% endif %}<b>Deliberação:</b> {{ situacao.deliberacao }}{% endif %}
+              {%- if situacao.base_manual %}<br /><b>Atenção:</b> tarifa da base manual, sem atualização automática pela publicação da concessionária.
+              {%- elif situacao.valor_mantido %}<br /><b>Atenção:</b> a publicação mais recente da concessionária não pôde ser lida; mantido o último valor válido.
+              {%- elif situacao.desatualizada %}<br /><b>Atenção:</b> tarifa sem atualização recente; confira a publicação da concessionária.
+              {%- endif %}
+            </p>
+            {%- endif %}
             <a class="map-navigation-card" href="{{ url_for('mapa', arquivo='index.html') }}" aria-label="Abrir mapa de disponibilidade de Gás Natural">
               <span class="map-navigation-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -133,7 +144,8 @@
                 {%- endif -%}
               </p>
             </div>
-            {%- set mostra_termo_fixo = not (calculado and r.cascata) %}
+            {#- Na cascata a coluna só aparece quando há termo fixo (B-03): sem ele, a tela fica igual à do app.js. #}
+            {%- set mostra_termo_fixo = not (calculado and r.cascata and not r.termo_fixo) %}
             <div class="result-table-wrap">
               <table>
                 <thead>
@@ -157,7 +169,7 @@
                     <td>{{ f.faixa_max|faixa_maxima }}</td>
                     <td>{{ f.consumo|numero }}</td>
                     <td>{{ f.tarifa_liquida_unitaria|numero }}</td>
-                    {%- if not r.cascata %}
+                    {%- if mostra_termo_fixo %}
                     <td>{{ f.termo_fixo|numero }}</td>
                     {%- endif %}
                     <td>{{ f.fatura_liquida|numero }}</td>
@@ -174,7 +186,7 @@
                     <td colspan="2">Total</td>
                     <td>{{ r.total_consumo_faixas|numero }}</td>
                     <td>{{ r.tarifa_liquida_media|numero }}</td>
-                    {%- if not r.cascata %}
+                    {%- if mostra_termo_fixo %}
                     <td>{{ r.termo_fixo|numero }}</td>
                     {%- endif %}
                     <td>{{ r.fatura_liquida|numero }}</td>
@@ -195,7 +207,7 @@
                 <div><dt>Faixa máx. (m³)</dt><dd>{{ f.faixa_max|faixa_maxima }}</dd></div>
                 <div><dt>Consumo na faixa (m³)</dt><dd>{{ f.consumo|numero }}</dd></div>
                 <div><dt>Tarifa líquida unitária (R$/m³)</dt><dd>{{ f.tarifa_liquida_unitaria|numero }}</dd></div>
-                {%- if not r.cascata %}
+                {%- if mostra_termo_fixo %}
                 <div><dt>Termo Fixo Líquido (R$)</dt><dd>{{ f.termo_fixo|numero }}</dd></div>
                 {%- endif %}
                 <div><dt>Fatura líquida (R$)</dt><dd>{{ f.fatura_liquida|numero }}</dd></div>
@@ -208,7 +220,7 @@
               <article class="faixa-mobile-card"><h3>Total</h3><dl>
                 <div><dt>Consumo total (m³)</dt><dd>{{ r.total_consumo_faixas|numero }}</dd></div>
                 <div><dt>Tarifa líquida média (R$/m³)</dt><dd>{{ r.tarifa_liquida_media|numero }}</dd></div>
-                {%- if not r.cascata %}
+                {%- if mostra_termo_fixo %}
                 <div><dt>Termo Fixo Líquido (R$)</dt><dd>{{ r.termo_fixo|numero }}</dd></div>
                 {%- endif %}
                 <div><dt>Fatura líquida (R$)</dt><dd>{{ r.fatura_liquida|numero }}</dd></div>

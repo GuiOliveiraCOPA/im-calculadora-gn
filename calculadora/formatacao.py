@@ -43,3 +43,17 @@ def moeda(valor: float) -> str:
 
 def faixa_maxima(valor: float) -> str:
     return "Acima" if valor > 999999999 else numero(valor)
+
+
+def fator(valor: float) -> str:
+    """Fator de conversão com até 6 casas (1.210526 -> "1,210526")."""
+    sinal, texto = _sinal_e_texto(valor, 0, 6)
+    return sinal + texto
+
+
+def data(valor: str | None) -> str:
+    """Data ISO da Gold ("2026-10-29" ou com hora) como dd/mm/aaaa; vazio se não houver."""
+    if not valor:
+        return ""
+    ano, mes, dia = str(valor)[:10].split("-")
+    return f"{dia}/{mes}/{ano}"

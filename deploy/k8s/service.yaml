@@ -1,0 +1,16 @@
+# MODELO: Service interno. A exposição (Ingress/Application Gateway, DNS, TLS) é definida
+# com o time de rede e segurança.
+apiVersion: v1
+kind: Service
+metadata:
+  name: calculadora-gn
+  labels:
+    app.kubernetes.io/name: calculadora-gn
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: calculadora-gn
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

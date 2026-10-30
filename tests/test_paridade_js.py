@@ -1,8 +1,14 @@
 """Garante que a versão Flask exibe exatamente o que o app.js original exibia.
 
-Roda o 5_Calculadora_Final/app.js em Node (DOM simulado) para centenas de
-cenários — todas as combinações da base × volumes × GLP/GN — e compara texto
-a texto com o HTML gerado pelo Python. Pulado se o Node não estiver instalado.
+Roda o app.js original (5_Calculadora_Final) em Node (DOM simulado) para
+centenas de cenários — todas as combinações da base × volumes × GLP/GN — e
+compara texto a texto com o HTML gerado pelo Python. A base é a fixture
+congelada de 2026-09-03: a lógica de cálculo não muda com a fonte de dados,
+então isso prova que a troca de fonte não alterou o motor. Pulado se o Node
+não estiver instalado.
+
+Exceção de propósito: os grupos em cascata com termo fixo (B-03, ADR 0005 do
+tratamento), em que o Flask soma o termo fixo da última Classe e o app.js não.
 """
 
 from __future__ import annotations
@@ -18,20 +24,26 @@ import pytest
 from calculadora.filtros import resolver_filtros
 
 RAIZ = Path(__file__).resolve().parents[2]
-VERSAO_ORIGINAL = RAIZ / "5_Calculadora_Final"
+APP_JS = RAIZ / "5_Calculadora_Final" / "app.js"
+FIXTURE = Path(__file__).parent / "fixtures" / "tarifas_2026-09-03.json"
 SCRIPT = Path(__file__).parent / "paridade" / "executar_app_js.js"
 
 pytestmark = pytest.mark.skipif(
-    shutil.which("node") is None or not (VERSAO_ORIGINAL / "app.js").exists(),
+    shutil.which("node") is None or not APP_JS.exists(),
     reason="Node.js ou 5_Calculadora_Final/app.js indisponível",
 )
 
 
 @pytest.fixture(scope="module")
 def saidas_js(tmp_path_factory):
-    destino = tmp_path_factory.mktemp("paridade") / "saidas.json"
+    pasta = tmp_path_factory.mktemp("paridade")
+    # O app.js espera a base como script (window.TARIFAS_GN = {...};).
+    tarifas_js = pasta / "tarifas.js"
+    payload = FIXTURE.read_text(encoding="utf-8")
+    tarifas_js.write_text(f"window.TARIFAS_GN = {payload};", encoding="utf-8")
+    destino = pasta / "saidas.json"
     subprocess.run(
-        ["node", str(SCRIPT), str(VERSAO_ORIGINAL / "tarifas.js"), str(VERSAO_ORIGINAL / "app.js"), str(destino)],
+        ["node", str(SCRIPT), str(tarifas_js), str(APP_JS), str(destino)],
         check=True,
         capture_output=True,
     )
@@ -43,14 +55,7 @@ def cliente_original():
     """App Flask lendo exatamente a mesma base usada pelo app.js."""
     from app import create_app
 
-    texto = (VERSAO_ORIGINAL / "tarifas.js").read_text(encoding="utf-8-sig").strip()
-    payload = texto.removeprefix("window.TARIFAS_GN = ").removesuffix(";")
-    caminho = Path(__file__).parent / "paridade" / "_tarifas_original.json"
-    caminho.write_text(payload, encoding="utf-8")
-    try:
-        yield create_app(caminho).test_client()
-    finally:
-        caminho.unlink(missing_ok=True)
+    return create_app(FIXTURE).test_client()
 
 
 class _Extrator(HTMLParser):
@@ -111,10 +116,21 @@ def test_filtros_em_cascata_identicos(saidas_js, cliente_original):
         assert filtros == caso["saida"], caso["entrada"]
 
 
+def _grupos_b03(records) -> set[tuple]:
+    return {(r["uf"], r["segmento_copa"], r["concessionaria"], r["segmento"])
+            for r in records if r["cascata"] and r["termo_fixo"]}
+
+
 def test_calculos_e_exibicao_identicos(saidas_js, cliente_original):
+    grupos_b03 = _grupos_b03(cliente_original.application.extensions["tarifas"].obter().records)
     divergencias = []
+    comparados = 0
     for caso in saidas_js["calculos"]:
         resposta = cliente_original.get("/api/calcular", query_string=caso["entrada"]).get_json()
+        selecao = tuple(resposta["filtros"][k]["selecionado"] for k in ("uf", "segmento_copa", "concessionaria", "segmento"))
+        if selecao in grupos_b03:
+            continue
+        comparados += 1
         py = _extrair(resposta["html"])
         calculado = resposta["resultado"]["ok"]
 
@@ -138,5 +154,5 @@ def test_calculos_e_exibicao_identicos(saidas_js, cliente_original):
         if ocultos != esperados:
             divergencias.append((caso["entrada"], "oculto", ocultos, esperados))
 
-    assert len(saidas_js["calculos"]) > 1000
+    assert comparados > 1000
     assert not divergencias, f"{len(divergencias)} divergência(s). Primeiras: {divergencias[:5]}"

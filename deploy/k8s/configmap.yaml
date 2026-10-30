@@ -1,0 +1,21 @@
+# MODELO: configuração não secreta da calculadora. Ajuste os valores marcados com <...>.
+# Um ConfigMap por ambiente (namespace); só muda GN_AMBIENTE, host e http_path.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: calculadora-gn-config
+  labels:
+    app.kubernetes.io/name: calculadora-gn
+data:
+  GN_AMBIENTE: "prd"                                   # dev | hml | prd -> marketing_prd.marketing_gold
+  GN_FONTE: "databricks"
+  GN_AUTH_TIPO: "oauth_m2m"                            # service principal (credenciais no Secret)
+  DATABRICKS_HOST: "<adb-xxxxxxxxxxxxxxxx.x.azuredatabricks.net>"
+  DATABRICKS_HTTP_PATH: "</sql/1.0/warehouses/xxxxxxxxxxxxxxxx>"
+  GN_RECARGA_MINUTOS: "30"                             # a Gold muda 1x por dia, de manhã
+  GN_TIMEOUT_CONSULTA_S: "60"
+  GN_BASE_MAX_IDADE_HORAS: "72"
+  GN_CACHE_PATH: "/tmp/gn_cache/tarifas.json"          # emptyDir do Deployment
+  # Proxy corporativo, se a rede exigir (combinar com o time de rede):
+  # HTTPS_PROXY: "http://<proxy>:<porta>"
+  # NO_PROXY: "localhost,127.0.0.1,.svc,.cluster.local"

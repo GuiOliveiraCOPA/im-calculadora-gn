@@ -1,0 +1,74 @@
+# MODELO: ajuste a imagem (<registro>) e os recursos com o time de plataforma.
+# Sem estado persistente: cada réplica lê a Gold sozinha e guarda a própria cópia em /tmp.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calculadora-gn
+  labels:
+    app.kubernetes.io/name: calculadora-gn
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: calculadora-gn
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0          # a versão antiga só sai depois que a nova estiver pronta (com base carregada)
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: calculadora-gn
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: calculadora
+          image: <registro>/calculadora-gn:<versao>
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: calculadora-gn-config
+            - secretRef:
+                name: calculadora-gn-credenciais
+          # /saude não consulta o Databricks: uma queda dele não reinicia o pod.
+          livenessProbe:
+            httpGet: {path: /saude, port: http}
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # Pronto só com base válida em memória. O warehouse frio pode levar alguns minutos
+          # na primeira carga; enquanto isso o pod não recebe tráfego.
+          readinessProbe:
+            httpGet: {path: /saude/pronto, port: http}
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
