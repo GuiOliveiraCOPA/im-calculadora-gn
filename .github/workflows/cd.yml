@@ -1,0 +1,75 @@
+name: CD — im-calculadora-gn
+
+# Deploy por BRANCH (GitFlow COPA): dev -> AKS dev | hml -> AKS hml | main -> AKS prd.
+# Cada ambiente tem seu cluster inter e seu ACR. Imagem por digest. OIDC.
+on:
+  push:
+    branches: [dev, hml, main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  # resolve ambiente/cluster/ACR a partir da branch
+  contexto:
+    runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.c.outputs.env }}
+      acr: ${{ steps.c.outputs.acr }}
+      aks: ${{ steps.c.outputs.aks }}
+      rg: ${{ steps.c.outputs.rg }}
+    steps:
+      - id: c
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            main)
+              echo "env=prd" >> $GITHUB_OUTPUT
+              echo "acr=registrycopa221" >> $GITHUB_OUTPUT          # confirmar ACR de prd
+              echo "aks=copaprd-inter" >> $GITHUB_OUTPUT
+              echo "rg=grupo_recurso_copa_prd" >> $GITHUB_OUTPUT ;;
+            hml)
+              echo "env=hml" >> $GITHUB_OUTPUT
+              echo "acr=registrycopahml" >> $GITHUB_OUTPUT
+              echo "aks=copahml-inter" >> $GITHUB_OUTPUT
+              echo "rg=grupo_recurso_copa_hml" >> $GITHUB_OUTPUT ;;
+            *)
+              echo "env=dev" >> $GITHUB_OUTPUT
+              echo "acr=registrycopa221" >> $GITHUB_OUTPUT
+              echo "aks=copadev-inter" >> $GITHUB_OUTPUT
+              echo "rg=grupo_recurso_copa_dev" >> $GITHUB_OUTPUT ;;
+          esac
+
+  ci:
+    needs: contexto
+    uses: Copa-Infraestrutura/devops-shared-workflows/.github/workflows/container-ci-reusable.yml@main
+    with:
+      image_name: im-calculadora-gn
+      image_tag: ${{ needs.contexto.outputs.env }}-${{ github.sha }}
+      dockerfile: "./Dockerfile"
+      acr_name: ${{ needs.contexto.outputs.acr }}
+      trivy_fail: false
+      sign_image: true
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+  deploy:
+    needs: [contexto, ci]
+    uses: Copa-Infraestrutura/devops-shared-workflows/.github/workflows/helm-deploy-aks-reusable.yml@main
+    with:
+      environment: ${{ needs.contexto.outputs.env }}
+      aks_name: ${{ needs.contexto.outputs.aks }}
+      aks_resource_group: ${{ needs.contexto.outputs.rg }}
+      namespace: calculadora-gn
+      release_name: im-calculadora-gn
+      chart_ref: main
+      values_file: "./deploy/values.yaml"
+      values_env_file: "./deploy/values-${{ needs.contexto.outputs.env }}.yaml"
+      image_ref: ${{ needs.ci.outputs.image_ref }}
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
