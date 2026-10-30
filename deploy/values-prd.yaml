@@ -1,0 +1,7 @@
+# prd: HA 2 replicas + recursos maiores. (ATENCAO: PVC ReadWriteOnce nao suporta 2 pods
+# no mesmo node pool escrevendo o mesmo volume; em prd avaliar ReadWriteMany/Azure Files
+# para os volumes compartilhados do ETL, ou manter 1 replica se o ETL exigir exclusividade.)
+replicaCount: 1
+resources:
+  requests: { cpu: 500m, memory: 1Gi }
+  limits:   { cpu: "2", memory: 2Gi }
